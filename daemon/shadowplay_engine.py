@@ -174,7 +174,7 @@ def update_obs_visual_profile(game_name):
     except Exception:
         pass
 
-def wait_for_file_ready(filepath, timeout=5.0):
+def wait_for_file_ready(filepath, timeout=15.0):
     """Waits until OBS finishes writing and flushes the file handle."""
     start = time.time()
     last_size = -1
