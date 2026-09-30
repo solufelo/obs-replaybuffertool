@@ -35,15 +35,22 @@ VK_MAP = {
     0x41: "A",
     0x53: "S",
     0x44: "D",
-    0x51: "Q",
-    0x45: "INTERACT",
-    0x43: "CROUCH",
-    0x11: "CROUCH",
-    0x20: "JUMP",
-    0x10: "SPRINT",
-    0x31: "WEAPON",
-    0x32: "WEAPON",
-    0x33: "WEAPON",
+    0x50: "STIM",     # 'P' (Tactical / Stim)
+    0x12: "STIM",     # Alt (Tactical / Stim)
+    0xA4: "STIM",     # Left Alt (Swapped for P!)
+    0x51: "STIM",     # 'Q' (Tactical fallback)
+    0x45: "INTERACT", # 'E'
+    0x43: "CROUCH",   # 'C'
+    0x11: "CROUCH",   # Ctrl
+    0xA2: "CROUCH",   # Left Ctrl
+    0x20: "JUMP",     # Space
+    0x10: "SPRINT",   # Shift
+    0xA0: "SPRINT",   # Left Shift
+    0x31: "WEAPON",   # 1
+    0x32: "WEAPON",   # 2
+    0x33: "WEAPON",   # 3 (Holster)
+    0x05: "WEAPON",   # Mouse 4 (Holster in user config)
+    0x06: "WEAPON",   # Mouse 5
     0x01: "LMB",
     0x02: "RMB"
 }
@@ -82,7 +89,6 @@ def low_level_mouse_proc(nCode, wParam, lParam):
 # 120 FPS Rock-Solid Non-blocking Key State Poller
 def poll_keys_thread():
     last_states = {name: False for name in set(VK_MAP.values())}
-    last_states["TACTICAL"] = False
 
     while True:
         try:
@@ -90,8 +96,6 @@ def poll_keys_thread():
             for vk, name in VK_MAP.items():
                 if user32.GetAsyncKeyState(vk) & 0x8000:
                     current_states[name] = True
-                    if name == "Q":
-                        current_states["TACTICAL"] = True
 
             for name, is_down in current_states.items():
                 if is_down != last_states[name]:

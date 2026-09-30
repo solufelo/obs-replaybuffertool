@@ -34,16 +34,16 @@
       "__type": "KeyboardKey",
       "Id": 2,
       "Boundaries": [
-        { "X": 35, "Y": 10 },
+        { "X": 25, "Y": 10 },
         { "X": 70, "Y": 10 },
         { "X": 70, "Y": 45 },
-        { "X": 35, "Y": 45 }
+        { "X": 25, "Y": 45 }
       ],
-      "KeyCodes": [ 81 ],
-      "Text": "Q",
-      "TextPosition": { "X": 52, "Y": 27 },
-      "ChangeOnCaps": true,
-      "ShiftText": "Q"
+      "KeyCodes": [ 80, 18, 164, 81 ],
+      "Text": "STIM",
+      "TextPosition": { "X": 47, "Y": 27 },
+      "ChangeOnCaps": false,
+      "ShiftText": "STIM"
     },
     {
       "__type": "KeyboardKey",

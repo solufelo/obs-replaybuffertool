@@ -61,6 +61,13 @@ $startupObs.WorkingDirectory = "C:\Program Files\obs-studio\bin\64bit"
 $startupObs.WindowStyle = 7
 $startupObs.Save()
 
+$startupOverlay = $sh.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\OBS Input Overlay.lnk")
+$startupOverlay.TargetPath = $pythonw
+$startupOverlay.Arguments = "`"$overlayDaemonScript`""
+$startupOverlay.WorkingDirectory = "$PSScriptRoot\daemon"
+$startupOverlay.WindowStyle = 7
+$startupOverlay.Save()
+
 $desktopObs = $sh.CreateShortcut("$env:USERPROFILE\Desktop\OBS ShadowPlay.lnk")
 $desktopObs.TargetPath = $obsPath
 $desktopObs.Arguments = "--disable-shutdown-check --startreplaybuffer --minimize-to-tray"
