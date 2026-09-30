@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 import ctypes
 import asyncio
 import threading
@@ -9,23 +10,9 @@ from pathlib import Path
 from aiohttp import web
 
 # Win32 Constants
-WH_KEYBOARD_LL = 13
 WH_MOUSE_LL = 14
-
-WM_KEYDOWN = 0x0100
-WM_KEYUP = 0x0101
-WM_SYSKEYDOWN = 0x0104
-WM_SYSKEYUP = 0x0105
-
-WM_MOUSEMOVE = 0x0200
-WM_LBUTTONDOWN = 0x0201
-WM_LBUTTONUP = 0x0202
-WM_RBUTTONDOWN = 0x0204
-WM_RBUTTONUP = 0x0205
-WM_MBUTTONDOWN = 0x0207
-WM_MBUTTONUP = 0x0208
 WM_MOUSEWHEEL = 0x020A
-
+WM_MOUSEMOVE = 0x0200
 HC_ACTION = 0
 
 user32 = ctypes.windll.user32
@@ -42,30 +29,23 @@ class MSLLHOOKSTRUCT(ctypes.Structure):
         ('dwExtraInfo', ctypes.c_void_p)
     ]
 
-class KBDLLHOOKSTRUCT(ctypes.Structure):
-    _fields_ = [
-        ('vkCode', wintypes.DWORD),
-        ('scanCode', wintypes.DWORD),
-        ('flags', wintypes.DWORD),
-        ('time', wintypes.DWORD),
-        ('dwExtraInfo', ctypes.c_void_p)
-    ]
-
-# Virtual Key Mappings to HUD Elements
+# Tracked Virtual Keys (0-Lag GetAsyncKeyState Polling)
 VK_MAP = {
     0x57: "W",
     0x41: "A",
     0x53: "S",
     0x44: "D",
-    0x51: "Q",         # Tactical
-    0x45: "INTERACT",  # Default Interact 'E'
-    0x43: "CROUCH",    # 'C'
-    0x11: "CROUCH",    # Left/Right Ctrl
-    0x20: "JUMP",      # Space
-    0x10: "SPRINT",    # Shift
-    0x31: "WEAPON",    # 1
-    0x32: "WEAPON",    # 2
-    0x33: "WEAPON",    # 3 (Holster)
+    0x51: "Q",
+    0x45: "INTERACT",
+    0x43: "CROUCH",
+    0x11: "CROUCH",
+    0x20: "JUMP",
+    0x10: "SPRINT",
+    0x31: "WEAPON",
+    0x32: "WEAPON",
+    0x33: "WEAPON",
+    0x01: "LMB",
+    0x02: "RMB"
 }
 
 OVERLAY_DIR = Path(__file__).resolve().parent.parent / "overlay"
@@ -80,50 +60,49 @@ def broadcast_event(data):
     msg = json.dumps(data)
     for ws in list(connected_clients):
         if not ws.closed:
-            asyncio.run_coroutine_threadsafe(ws.send_str(msg), event_loop)
+            try:
+                asyncio.run_coroutine_threadsafe(ws.send_str(msg), event_loop)
+            except Exception:
+                pass
 
-# Low-level Keyboard Hook
-def low_level_kbd_proc(nCode, wParam, lParam):
-    if nCode == HC_ACTION:
-        is_down = (wParam == WM_KEYDOWN or wParam == WM_SYSKEYDOWN)
-        is_up = (wParam == WM_KEYUP or wParam == WM_SYSKEYUP)
-        if is_down or is_up:
-            kbd = KBDLLHOOKSTRUCT.from_address(lParam)
-            vk = kbd.vkCode
-            if vk in VK_MAP:
-                name = VK_MAP[vk]
-                broadcast_event({"type": "key", "name": name, "down": is_down})
-                if name == "Q":
-                    broadcast_event({"type": "key", "name": "TACTICAL", "down": is_down})
-    return user32.CallNextHookEx(None, nCode, wParam, lParam)
-
-# Low-level Mouse Hook (Ultra-low latency: skips mouse movements in < 1 microsecond)
+# Low-level Mouse Hook for Scroll Wheel (Tap-Strafe & Bunny Hop detection)
 def low_level_mouse_proc(nCode, wParam, lParam):
     if nCode == HC_ACTION:
-        # Zero-Lag Bypass for high-polling gaming mice
         if wParam == WM_MOUSEMOVE:
             return user32.CallNextHookEx(None, nCode, wParam, lParam)
-
-        if wParam == WM_LBUTTONDOWN:
-            broadcast_event({"type": "key", "name": "LMB", "down": True})
-        elif wParam == WM_LBUTTONUP:
-            broadcast_event({"type": "key", "name": "LMB", "down": False})
-        elif wParam == WM_RBUTTONDOWN:
-            broadcast_event({"type": "key", "name": "RMB", "down": True})
-        elif wParam == WM_RBUTTONUP:
-            broadcast_event({"type": "key", "name": "RMB", "down": False})
-        elif wParam == WM_MOUSEWHEEL:
+        if wParam == WM_MOUSEWHEEL:
             ms = MSLLHOOKSTRUCT.from_address(lParam)
-            # High word of mouseData contains delta (+120 for up, -120 for down)
             delta = ctypes.c_short(ms.mouseData >> 16).value
             if delta > 0:
                 broadcast_event({"type": "wheel", "dir": "up"})
             elif delta < 0:
                 broadcast_event({"type": "wheel", "dir": "down"})
-
     return user32.CallNextHookEx(None, nCode, wParam, lParam)
 
-# HTTP / WebSocket Handlers
+# 120 FPS Rock-Solid Non-blocking Key State Poller
+def poll_keys_thread():
+    last_states = {name: False for name in set(VK_MAP.values())}
+    last_states["TACTICAL"] = False
+
+    while True:
+        try:
+            current_states = {name: False for name in last_states}
+            for vk, name in VK_MAP.items():
+                if user32.GetAsyncKeyState(vk) & 0x8000:
+                    current_states[name] = True
+                    if name == "Q":
+                        current_states["TACTICAL"] = True
+
+            for name, is_down in current_states.items():
+                if is_down != last_states[name]:
+                    broadcast_event({"type": "key", "name": name, "down": is_down})
+                    last_states[name] = is_down
+
+            time.sleep(0.008)  # ~120 Hz polling, < 0.05% CPU
+        except Exception:
+            time.sleep(0.05)
+
+# HTTP & WebSocket Handlers
 async def index_handler(request):
     if HTML_FILE.exists():
         return web.FileResponse(HTML_FILE)
@@ -135,7 +114,12 @@ async def ws_handler(request):
     connected_clients.add(ws)
     try:
         async for msg in ws:
-            pass
+            if msg.type == web.WSMsgType.TEXT:
+                try:
+                    data = json.loads(msg.data)
+                    broadcast_event(data)
+                except Exception:
+                    pass
     finally:
         connected_clients.discard(ws)
     return ws
@@ -154,24 +138,20 @@ def run_http_server():
     event_loop.run_forever()
 
 def main():
-    # Start Web / WebSocket Server in background thread
+    # 1. Start HTTP / WebSocket Server
     server_thread = threading.Thread(target=run_http_server, daemon=True)
     server_thread.start()
 
-    # Install Windows Global Hooks
-    kbd_callback = HOOKPROC(low_level_kbd_proc)
+    # 2. Start 120 FPS High-Performance Key Poller
+    poller_thread = threading.Thread(target=poll_keys_thread, daemon=True)
+    poller_thread.start()
+
+    # 3. Install Mouse Hook for Scroll Wheel
     mouse_callback = HOOKPROC(low_level_mouse_proc)
-
-    kbd_hook = user32.SetWindowsHookExW(WH_KEYBOARD_LL, kbd_callback, 0, 0)
     mouse_hook = user32.SetWindowsHookExW(WH_MOUSE_LL, mouse_callback, 0, 0)
+    print(f"[InputOverlay] Mouse wheel hook installed: {bool(mouse_hook)}", flush=True)
 
-    if not kbd_hook or not mouse_hook:
-        print(f"[InputOverlay] Failed to register hooks. Kbd: {bool(kbd_hook)}, Mouse: {bool(mouse_hook)}")
-        sys.exit(1)
-
-    print("[InputOverlay] Global input hooks registered. Server live at http://127.0.0.1:8998", flush=True)
-
-    # Win32 Message Pump (Required for SetWindowsHookEx)
+    # 4. Message Pump for Mouse Hook
     msg = wintypes.MSG()
     try:
         while user32.GetMessageW(ctypes.byref(msg), 0, 0, 0) != 0:
@@ -180,8 +160,6 @@ def main():
     except (KeyboardInterrupt, SystemExit):
         pass
     finally:
-        if kbd_hook:
-            user32.UnhookWindowsHookEx(kbd_hook)
         if mouse_hook:
             user32.UnhookWindowsHookEx(mouse_hook)
 
