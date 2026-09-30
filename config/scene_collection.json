@@ -10,14 +10,14 @@
             "settings": {
                 "compatibility": false,
                 "capture_audio": false,
+                "window": "Apex Legends:Respawn001:r5apex_dx12.exe",
                 "capture_mode": "any_fullscreen",
+                "priority": 2,
                 "capture_cursor": true,
                 "allow_transparency": false,
                 "limit_framerate": true,
                 "anti_cheat_hook": true,
-                "hook_rate": 2,
-                "priority": 2,
-                "window": "Apex Legends:Respawn001:r5apex_dx12.exe"
+                "hook_rate": 2
             },
             "mixers": 47,
             "sync": 0,
@@ -50,10 +50,10 @@
                     "id": "color_filter",
                     "versioned_id": "color_filter_v2",
                     "settings": {
-                        "contrast": 0.06,
-                        "brightness": 0.01,
-                        "saturation": 1.2,
-                        "gamma": -0.04
+                        "gamma": 0.0,
+                        "contrast": 0.02,
+                        "brightness": 0.0,
+                        "saturation": 1.04
                     },
                     "mixers": 0,
                     "sync": 0,
@@ -79,7 +79,7 @@
                     "id": "sharpness_filter",
                     "versioned_id": "sharpness_filter_v2",
                     "settings": {
-                        "sharpness": 0.1
+                        "sharpness": 0.02
                     },
                     "mixers": 0,
                     "sync": 0,
@@ -181,7 +181,7 @@
             "mixers": 37,
             "sync": 0,
             "flags": 2,
-            "volume": 0.017174571752548218,
+            "volume": 0.38091880083084106,
             "balance": 0.5,
             "enabled": true,
             "muted": false,
@@ -198,7 +198,36 @@
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
             "monitoring_type": 0,
-            "private_settings": {}
+            "private_settings": {},
+            "filters": [
+                {
+                    "prev_ver": 537001986,
+                    "name": "Noise Gate",
+                    "uuid": "1af463b8-f06a-4d30-ae64-a3526fe0d73a",
+                    "id": "noise_gate_filter",
+                    "versioned_id": "noise_gate_filter",
+                    "settings": {
+                        "open_threshold": -23.0,
+                        "close_threshold": -26.0
+                    },
+                    "mixers": 255,
+                    "sync": 0,
+                    "flags": 0,
+                    "volume": 1.0,
+                    "balance": 0.5,
+                    "enabled": true,
+                    "muted": false,
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "hotkeys": {},
+                    "deinterlace_mode": 0,
+                    "deinterlace_field_order": 0,
+                    "monitoring_type": 0,
+                    "private_settings": {}
+                }
+            ]
         },
         {
             "prev_ver": 537001986,
@@ -208,7 +237,8 @@
             "versioned_id": "dshow_input",
             "settings": {
                 "video_device_id": "C270 HD WEBCAM:\\\\?\\usb#22vid_046d&pid_0825&mi_00#227&2635ec53&0&0000#22{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global",
-                "last_video_device_id": "C270 HD WEBCAM:\\\\?\\usb#22vid_046d&pid_0825&mi_00#227&2635ec53&0&0000#22{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global"
+                "last_video_device_id": "C270 HD WEBCAM:\\\\?\\usb#22vid_046d&pid_0825&mi_00#227&2635ec53&0&0000#22{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global",
+                "active": true
             },
             "mixers": 0,
             "sync": 0,
@@ -297,12 +327,49 @@
         },
         {
             "prev_ver": 537001986,
+            "name": "Apex Movement Input Overlay",
+            "uuid": "7918a061-5459-4fa5-8dba-9777060c3b2a",
+            "id": "browser_source",
+            "versioned_id": "browser_source",
+            "settings": {
+                "url": "http://127.0.0.1:8998",
+                "width": 360,
+                "height": 130,
+                "fps": 60,
+                "shutdown": false,
+                "restart_when_active": false
+            },
+            "mixers": 255,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.unmute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "ObsBrowser.Refresh": []
+            },
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 537001986,
             "name": "GAMEPLAY ULTRA (Active)",
             "uuid": "1796101b-1c2e-4983-9bcf-2fc01b13d4d4",
             "id": "scene",
             "versioned_id": "scene",
             "settings": {
-                "id_counter": 15,
+                "id_counter": 16,
                 "custom_size": false,
                 "items": [
                     {
@@ -689,6 +756,61 @@
                             "duration": 0
                         },
                         "private_settings": {}
+                    },
+                    {
+                        "name": "Apex Movement Input Overlay",
+                        "source_uuid": "7918a061-5459-4fa5-8dba-9777060c3b2a",
+                        "visible": true,
+                        "locked": false,
+                        "rot": 0.0,
+                        "scale_ref": {
+                            "x": 1920.0,
+                            "y": 1080.0
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds_crop": false,
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 16,
+                        "group_item_backup": false,
+                        "pos": {
+                            "x": 1530.0,
+                            "y": 720.0
+                        },
+                        "pos_rel": {
+                            "x": 1.0555555820465088,
+                            "y": 0.3333333730697632
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "scale_rel": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "bounds_rel": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
                     }
                 ]
             },
@@ -718,7 +840,9 @@
                 "libobs.show_scene_item.14": [],
                 "libobs.hide_scene_item.14": [],
                 "libobs.show_scene_item.15": [],
-                "libobs.hide_scene_item.15": []
+                "libobs.hide_scene_item.15": [],
+                "libobs.show_scene_item.16": [],
+                "libobs.hide_scene_item.16": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -811,7 +935,7 @@
     "saved_projectors": [],
     "preview_locked": false,
     "scaling_enabled": false,
-    "scaling_level": -10,
+    "scaling_level": -69,
     "scaling_off_x": 0.0,
     "scaling_off_y": 0.0,
     "virtual-camera": {

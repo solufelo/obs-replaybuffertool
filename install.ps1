@@ -40,6 +40,13 @@ $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" 
 Register-ScheduledTask -TaskName "OBS_ShadowPlay_Engine" -Action $actionDaemon -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
 Start-ScheduledTask -TaskName "OBS_ShadowPlay_Engine"
 
+# 4b. Deploy Background Task for Input Overlay
+Write-Host ">>> Registering 24/7 Input Overlay Daemon..." -ForegroundColor Green
+$overlayDaemonScript = "$PSScriptRoot\daemon\input_overlay_daemon.py"
+$actionOverlay = New-ScheduledTaskAction -Execute $pythonw -Argument "`"$overlayDaemonScript`"" -WorkingDirectory "$PSScriptRoot\daemon"
+Register-ScheduledTask -TaskName "OBS_Input_Overlay" -Action $actionOverlay -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
+Start-ScheduledTask -TaskName "OBS_Input_Overlay"
+
 # 5. Register OBS 24/7 Autostart Task
 Write-Host ">>> Registering OBS 24/7 Silent Background Task..." -ForegroundColor Green
 $actionObs = New-ScheduledTaskAction -Execute $obsPath -Argument "--disable-shutdown-check --startreplaybuffer --minimize-to-tray" -WorkingDirectory "C:\Program Files\obs-studio\bin\64bit"

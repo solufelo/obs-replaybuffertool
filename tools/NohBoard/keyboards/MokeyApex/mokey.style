@@ -1,0 +1,74 @@
+{
+  "BackgroundColor": {
+    "Blue": 0,
+    "Green": 255,
+    "Red": 0
+  },
+  "BackgroundImageFileName": null,
+  "DefaultKeyStyle": {
+    "Loose": {
+      "Background": {
+        "Blue": 18,
+        "Green": 18,
+        "Red": 18
+      },
+      "BackgroundImageFileName": "",
+      "Font": {
+        "FontFamily": "Segoe UI",
+        "Size": 9,
+        "Style": 1
+      },
+      "Outline": {
+        "Blue": 0,
+        "Green": 255,
+        "Red": 0
+      },
+      "OutlineWidth": 1,
+      "ShowOutline": false,
+      "Text": {
+        "Blue": 255,
+        "Green": 255,
+        "Red": 255
+      }
+    },
+    "Pressed": {
+      "Background": {
+        "Blue": 255,
+        "Green": 255,
+        "Red": 255
+      },
+      "BackgroundImageFileName": "",
+      "Font": {
+        "FontFamily": "Segoe UI",
+        "Size": 9,
+        "Style": 1
+      },
+      "Outline": {
+        "Blue": 0,
+        "Green": 255,
+        "Red": 0
+      },
+      "OutlineWidth": 1,
+      "ShowOutline": false,
+      "Text": {
+        "Blue": 0,
+        "Green": 0,
+        "Red": 0
+      }
+    }
+  },
+  "DefaultMouseSpeedIndicatorStyle": {
+    "InnerColor": {
+      "Blue": 0,
+      "Green": 0,
+      "Red": 0
+    },
+    "OuterColor": {
+      "Blue": 0,
+      "Green": 0,
+      "Red": 0
+    },
+    "OutlineWidth": 1
+  },
+  "ElementStyles": []
+}

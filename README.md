@@ -33,7 +33,13 @@
   * **Fast Tier (NVMe SSD):** 180-Second (3 Full Minutes) Rolling Replay Buffer in RAM (6,144 MB Cache) writing instant highlights to SSD.
   * **Archive Tier (Secondary HDD/NVMe):** Multi-hour full-session recordings write directly to bulk archive storage (`F:\Gameplay_Archive`).
 * **🔔 Audible In-Headset Confirmation:** Ascending double-tone confirmation chime (`1200Hz` → `1800Hz`) played directly through your headphones the millisecond a clip lands on disk.
-* **⌨️ 65% Keyboard & Left-Hand Ergonomics:** Native keybind chords designed for left-hand reach during intense combat (`Ctrl + Shift + C` or `Ctrl + X`), bypassing missing function rows and remapped Alt keys.
+* **⌨️ MokeySniper-Style Apex Movement Input Overlay:**
+  * **Zero Input Lag:** Windows low-level hooks (`WH_KEYBOARD_LL`, `WH_MOUSE_LL`) with microsecond bypass on `WM_MOUSEMOVE` for 1000Hz - 8000Hz gaming mice.
+  * **Inverted High-Contrast Blocks:** Real-time solid white active key highlights (`W`, `A`, `S`, `D`, `INTERACT`, `CROUCH`, `JUMP`).
+  * **Apex Movement Visualizer:** Dedicated scroll-wheel pulse animations (`▲` for Tap-Strafe, `▼` for Bunny Hop) and sleek mouse button indicators.
+  * **In-Engine OBS Integration:** Hardware-accelerated Browser Source (`http://127.0.0.1:8998`) with true 32-bit RGBA transparency (no ugly green chroma-key halo).
+  * **NohBoard-ReWrite Alternative:** Pre-configured `MokeyApex` layout with `keyboard.json` and `mokey.style` for creators preferring standalone window capture.
+* **🛡️ Silent Boot & Zero Twitch Error Popups:** Purged broken OAuth dock tokens while preserving direct high-bitrate RTMP stream keys for Twitch, Kick, and YouTube. OBS boots into tray completely silently with zero error dialogs.
 
 ---
 
@@ -119,10 +125,15 @@ obs-replaybuffertool/
 ├── config/
 │   ├── basic.ini              # Tuned OBS Profile (CQP 18, 5 audio tracks, 180s buffer)
 │   ├── recordEncoder.json     # Low-latency NVENC encoder preset
-│   └── scene_collection.json  # Pre-routed isolated audio sources & game capture
+│   └── scene_collection.json  # Pre-routed isolated audio sources, game capture & overlay
 ├── daemon/
 │   ├── shadowplay_engine.py   # Game detection, clip renamer, visual tuner & audio cue
+│   ├── input_overlay_daemon.py# Low-latency Win32 input hook & WebSocket broadcast server
 │   └── game_signatures.json   # Known process mappings
+├── overlay/
+│   └── index.html             # Hardware-accelerated Mokey HUD browser source
+├── tools/
+│   └── NohBoard/              # Standalone NohBoard-ReWrite with MokeyApex layout
 └── scripts/
     ├── start_shadowplay.ps1   # Start all 24/7 background tasks
     └── stop_shadowplay.ps1    # Gracefully stop all background tasks

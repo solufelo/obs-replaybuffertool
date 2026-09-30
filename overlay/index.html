@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apex Movement Input Overlay</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 10px;
+      background: transparent;
+      overflow: hidden;
+      font-family: 'Rajdhani', 'Eurostile', 'DIN Alternate', 'Segoe UI Bold', 'Arial Black', sans-serif;
+      font-weight: 700;
+      color: #FFFFFF;
+      text-transform: uppercase;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .overlay-container {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 6px 12px;
+      background: rgba(10, 14, 20, 0.45);
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+    }
+
+    .key-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      min-width: 30px;
+      padding: 0 6px;
+      font-size: 17px;
+      letter-spacing: 0.05em;
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 3px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+      transition: background 0.03s ease, color 0.03s ease, box-shadow 0.03s ease;
+    }
+
+    /* Active Highlight: Mokey's signature inverted solid-white block */
+    .key-box.active {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      font-weight: 900;
+      text-shadow: none !important;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.85);
+    }
+
+    .action-label {
+      font-size: 13px;
+      letter-spacing: 0.09em;
+      padding: 0 8px;
+      min-width: 65px;
+    }
+
+    .icon-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      color: #FFFFFF;
+      fill: #FFFFFF;
+    }
+
+    .icon-box svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    .icon-box.active {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      border-radius: 3px;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.85);
+    }
+    .icon-box.active svg {
+      fill: #000000 !important;
+    }
+
+    /* Mouse Visualizer */
+    .mouse-hud {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      padding-left: 6px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .mouse-body {
+      position: relative;
+      width: 24px;
+      height: 38px;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 12px 12px 10px 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mouse-top {
+      display: flex;
+      width: 100%;
+      height: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .mouse-btn {
+      flex: 1;
+      height: 100%;
+      transition: background 0.03s ease;
+    }
+
+    .mouse-btn.left {
+      border-right: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .mouse-btn.active {
+      background: #FFFFFF !important;
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .mouse-wheel {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 9px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 2px;
+      transition: background 0.04s ease, transform 0.04s ease, box-shadow 0.04s ease;
+    }
+
+    .mouse-wheel.up {
+      background: #00FFCC !important;
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 0 8px #00FFCC;
+    }
+
+    .mouse-wheel.down {
+      background: #FFCC00 !important;
+      transform: translateX(-50%) translateY(2px);
+      box-shadow: 0 0 8px #FFCC00;
+    }
+
+    /* Scroll Indicators */
+    .wheel-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      border-radius: 2px;
+      transition: all 0.05s ease;
+    }
+
+    .wheel-indicator.active {
+      color: #000000;
+      background: #FFFFFF;
+      font-weight: 900;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-container">
+    <!-- Row 1: Tactical [ ], Grapple/T, W, INTERACT, Wheel Up -->
+    <div class="row">
+      <div id="btn-tactical" class="icon-box" title="Tactical (Q)">
+        <svg viewBox="0 0 24 24"><path d="M4 4h4v2H6v2H4V4zm12 0h4v4h-2V6h-2V4zM4 16h2v2h2v2H4v-4zm14 2v-2h2v4h-4v-2h2zM11 7h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"/></svg>
+      </div>
+      <div id="key-q" class="key-box">Q</div>
+      <div id="key-w" class="key-box">W</div>
+      <div id="key-interact" class="key-box action-label">INTERACT</div>
+      <div id="wheel-up" class="wheel-indicator" title="Tap-Strafe (Wheel Up)">▲</div>
+      
+      <!-- Mouse Visualizer -->
+      <div class="mouse-hud">
+        <div class="mouse-body">
+          <div class="mouse-top">
+            <div id="mouse-lmb" class="mouse-btn left"></div>
+            <div id="mouse-rmb" class="mouse-btn right"></div>
+          </div>
+          <div id="mouse-wheel" class="mouse-wheel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: >> Sprint, A, S, D, CROUCH -->
+    <div class="row">
+      <div id="key-sprint" class="key-box" style="font-size: 14px; min-width: 28px;">&gt;&gt;</div>
+      <div id="key-a" class="key-box">A</div>
+      <div id="key-s" class="key-box">S</div>
+      <div id="key-d" class="key-box">D</div>
+      <div id="key-crouch" class="key-box action-label">CROUCH</div>
+    </div>
+
+    <!-- Row 3: Weapon Silhouette, JUMP, Wheel Down -->
+    <div class="row">
+      <div id="btn-weapon" class="icon-box" title="Weapon / Holster" style="width: 45px;">
+        <svg viewBox="0 0 24 24" style="width: 26px; height: 16px;">
+          <path d="M21 7l-2-2H8l-2 2H2v4h4l2-2h4v2l3 1v3h3v-4l3-2V7zm-9 2H9l1-1h2v1z"/>
+        </svg>
+      </div>
+      <div id="key-jump" class="key-box action-label" style="flex: 1; min-width: 90px;">JUMP</div>
+      <div id="wheel-down" class="wheel-indicator" title="Bhop / Jump (Wheel Down)">▼</div>
+    </div>
+  </div>
+
+  <script>
+    // State Tracking
+    const elements = {
+      'W': document.getElementById('key-w'),
+      'A': document.getElementById('key-a'),
+      'S': document.getElementById('key-s'),
+      'D': document.getElementById('key-d'),
+      'Q': document.getElementById('key-q'),
+      'TACTICAL': document.getElementById('btn-tactical'),
+      'SPRINT': document.getElementById('key-sprint'),
+      'INTERACT': document.getElementById('key-interact'),
+      'CROUCH': document.getElementById('key-crouch'),
+      'JUMP': document.getElementById('key-jump'),
+      'WEAPON': document.getElementById('btn-weapon'),
+      'LMB': document.getElementById('mouse-lmb'),
+      'RMB': document.getElementById('mouse-rmb'),
+      'WHEEL_UP': document.getElementById('wheel-up'),
+      'WHEEL_DOWN': document.getElementById('wheel-down'),
+      'MOUSE_WHEEL': document.getElementById('mouse-wheel')
+    };
+
+    let wheelUpTimer = null;
+    let wheelDownTimer = null;
+
+    function setKey(name, active) {
+      const el = elements[name];
+      if (el) {
+        if (active) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      }
+    }
+
+    function triggerWheel(direction) {
+      const wheel = elements['MOUSE_WHEEL'];
+      if (direction === 'up') {
+        const ind = elements['WHEEL_UP'];
+        ind.classList.add('active');
+        wheel.className = 'mouse-wheel up';
+        clearTimeout(wheelUpTimer);
+        wheelUpTimer = setTimeout(() => {
+          ind.classList.remove('active');
+          wheel.className = 'mouse-wheel';
+        }, 90);
+      } else if (direction === 'down') {
+        const ind = elements['WHEEL_DOWN'];
+        ind.classList.add('active');
+        wheel.className = 'mouse-wheel';
+        wheel.classList.add('down');
+        clearTimeout(wheelDownTimer);
+        wheelDownTimer = setTimeout(() => {
+          ind.classList.remove('active');
+          wheel.className = 'mouse-wheel';
+        }, 90);
+      }
+    }
+
+    // Connect to local WebSocket input daemon
+    function connectWS() {
+      const ws = new WebSocket('ws://127.0.0.1:8998/ws');
+
+      ws.onopen = () => {
+        console.log('[InputOverlay] Connected to input daemon on 8998');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'key') {
+            setKey(data.name, data.down);
+          } else if (data.type === 'wheel') {
+            triggerWheel(data.dir);
+          }
+        } catch (e) {}
+      };
+
+      ws.onclose = () => {
+        setTimeout(connectWS, 1500);
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
+    }
+
+    connectWS();
+
+    // Local Browser Event Listener for standalone preview & debugging
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toUpperCase();
+      if (k === 'W') setKey('W', true);
+      if (k === 'A') setKey('A', true);
+      if (k === 'S') setKey('S', true);
+      if (k === 'D') setKey('D', true);
+      if (k === 'Q') { setKey('Q', true); setKey('TACTICAL', true); }
+      if (k === 'E') setKey('INTERACT', true);
+      if (k === 'C' || e.code === 'ControlLeft') setKey('CROUCH', true);
+      if (k === ' ' || e.code === 'Space') setKey('JUMP', true);
+      if (e.code === 'ShiftLeft') setKey('SPRINT', true);
+      if (k === '1' || k === '2' || k === '3') setKey('WEAPON', true);
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toUpperCase();
+      if (k === 'W') setKey('W', false);
+      if (k === 'A') setKey('A', false);
+      if (k === 'S') setKey('S', false);
+      if (k === 'D') setKey('D', false);
+      if (k === 'Q') { setKey('Q', false); setKey('TACTICAL', false); }
+      if (k === 'E') setKey('INTERACT', false);
+      if (k === 'C' || e.code === 'ControlLeft') setKey('CROUCH', false);
+      if (k === ' ' || e.code === 'Space') setKey('JUMP', false);
+      if (e.code === 'ShiftLeft') setKey('SPRINT', false);
+      if (k === '1' || k === '2' || k === '3') setKey('WEAPON', false);
+    });
+
+    window.addEventListener('mousedown', (e) => {
+      if (e.button === 0) setKey('LMB', true);
+      if (e.button === 2) setKey('RMB', true);
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 0) setKey('LMB', false);
+      if (e.button === 2) setKey('RMB', false);
+    });
+
+    window.addEventListener('wheel', (e) => {
+      if (e.deltaY < 0) triggerWheel('up');
+      else if (e.deltaY > 0) triggerWheel('down');
+    });
+
+    window.addEventListener('contextmenu', (e) => e.preventDefault());
+  </script>
+</body>
+</html>
