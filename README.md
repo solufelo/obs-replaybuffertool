@@ -1,14 +1,15 @@
-# ShadowPlay-Pro-OBS ⚡
+# obs-replaybuffertool ⚡
 ### Enterprise-Grade 24/7 Silent Game Capture, Multi-Layer Audio Isolation & Dynamic Replay Engine
+**Repository:** [https://github.com/solufelo/obs-replaybuffertool](https://github.com/solufelo/obs-replaybuffertool)
 
-> **A high-performance, GUI-less NVIDIA ShadowPlay replacement built on OBS Studio 32+ and Python. Engineered for competitive gamers, streamers, and montage editors.**
+> **A high-performance, GUI-less NVIDIA ShadowPlay replacement built on OBS Studio 30+ and Python. Engineered for competitive gamers, streamers, and montage editors.**
 
 ---
 
 ## 🚀 Key Features
 
-* **⚡ Pure 24/7 GUI-less Operation:** Runs silently in the background and docked to the System Tray. Starts on Windows boot with zero windows or popups.
-* **🎮 Game-Aware Dynamic Replay Engine:** Automatically detects the active 3D game (Apex Legends, Marvel Rivals, CS2, Valorant, etc.) and routes clips into categorized folders with clean timestamps:
+* **⚡ Pure 24/7 GUI-less Operation:** Runs silently in the background minimized to the System Tray. Starts on Windows boot with zero UI popups, zero screen clutter, and `--disable-shutdown-check` safe mode bypassing.
+* **🎮 Game-Aware Dynamic Replay Engine:** Automatically detects the active 3D game process (Apex Legends, Marvel Rivals, CS2, Valorant, etc.) and routes clips into categorized folders with clean timestamps:
   ```text
   Videos/Clips/
   ├── Apex Legends/
@@ -17,10 +18,10 @@
   │   └── Marvel_Rivals_2026-09-29_19-02-15.mp4
   └── clips_index.jsonl
   ```
-* **🎨 "On Crack" Visual Processing Pipeline:**
-  * **Dynamic Edge Contrast (0.10 Sharpening):** Removes TAA and motion blur softness without halo ringing.
-  * **Vibrance & Color Pop (1.20 Saturation):** Deepens character models, shields, abilities, and particle effects.
-  * **Contrast & Gamma Curve (0.06 Contrast, -0.04 Gamma):** Delivers rich blacks and HDR-like highlight pop without crushing shadow detail.
+* **🎨 Autonomous Game-Aware Visual Tuning:**
+  * **Apex Legends Profile:** Subtle esports contrast and edge clarity (`saturation: 1.10`, `sharpness: 0.04`).
+  * **Marvel Rivals Profile:** Cinematic natural tone curve (`saturation: 1.03`, `sharpness: 0.00` to prevent DLSS 85 ringing).
+  * **Universal Default:** Balanced studio clarity across any other title.
 * **🎙️ Universal Multi-Layer Audio Isolation (5 Dedicated Tracks):**
   * **Track 1:** Master Mix (Game + Mic + Discord Homies) — Ready for immediate sharing.
   * **Track 2:** Pure Game Audio Alone (Clean game sound, zero voice, zero music) — Pure montage editing bliss.
@@ -29,7 +30,7 @@
   * **Track 5:** Isolated Music (Spotify alone, never leaked into clips).
   * **Track 6:** Live Stream Broadcast Mix (Twitch / Kick broadcast output).
 * **💾 Multi-Drive Storage Tiering:**
-  * **Fast Tier (NVMe SSD):** 90-Second Rolling Replay Buffer in RAM (3072 MB) writing instant highlights to SSD.
+  * **Fast Tier (NVMe SSD):** 180-Second (3 Full Minutes) Rolling Replay Buffer in RAM (6,144 MB Cache) writing instant highlights to SSD.
   * **Archive Tier (Secondary HDD/NVMe):** Multi-hour full-session recordings write directly to bulk archive storage (`F:\Gameplay_Archive`).
 * **🔔 Audible In-Headset Confirmation:** Ascending double-tone confirmation chime (`1200Hz` → `1800Hz`) played directly through your headphones the millisecond a clip lands on disk.
 * **⌨️ 65% Keyboard & Left-Hand Ergonomics:** Native keybind chords designed for left-hand reach during intense combat (`Ctrl + Shift + C` or `Ctrl + X`), bypassing missing function rows and remapped Alt keys.
@@ -48,18 +49,19 @@ flowchart TD
     end
 
     subgraph OBS ["OBS Studio Engine (24/7 Silent Background)"]
-        VFX["Visual Pipeline (CAS Sharpen + Dynamic Vibrance)"]
+        VFX["Visual Pipeline (Dynamic Game-Aware Color & Sharpness)"]
         Mixer["6-Track Audio Router"]
-        RB["90-Second Rolling Replay Buffer (NVENC CQP 18)"]
+        RB["180-Second Rolling Replay Buffer (NVENC CQP 18)"]
     end
 
     subgraph Storage ["Multi-Tier Storage"]
-        SSD["Fast SSD: C:\\Users\\...\\Videos\\Clips\\<Game>"]
-        Archive["Archive: F:\\Gameplay_Archive\\Full_Sessions"]
+        SSD["Fast SSD: Videos/Clips/<Game>"]
+        Archive["Archive: F:/Gameplay_Archive/Full_Sessions"]
     end
 
     subgraph Daemon ["ShadowPlay Python Daemon"]
         Detector["Process Game Detector"]
+        Tuner["Real-Time OBS WebSocket Visual Tuner"]
         Sorter["Dynamic File Renamer & Organizer"]
         AudioCue["Headphone Boop-Beep Feedback"]
     end
@@ -68,6 +70,7 @@ flowchart TD
     Game & Mic & Discord & Spotify --> Mixer --> RB
     RB -- "Hotkeys: Ctrl+Shift+C / Ctrl+X" --> Daemon
     Daemon --> Sorter --> SSD
+    Daemon --> Tuner --> VFX
     Daemon --> AudioCue
 ```
 
@@ -78,11 +81,15 @@ flowchart TD
 ### Prerequisites
 * **Windows 10 / 11 64-bit**
 * **NVIDIA GeForce RTX GPU** (NVENC hardware encoder)
-* **OBS Studio 32+**
+* **OBS Studio 30+**
 * **Python 3.10+** (with `psutil` installed)
 
 ### 1-Click Setup
-1. Clone or download this repository to your machine.
+1. Clone or download this repository:
+   ```bash
+   git clone https://github.com/solufelo/obs-replaybuffertool.git
+   cd obs-replaybuffertool
+   ```
 2. Open PowerShell as Administrator and run:
    ```powershell
    Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -96,25 +103,26 @@ flowchart TD
 
 | Hotkey | Action | Description |
 | :--- | :--- | :--- |
-| **`Ctrl + Shift + C`** | **Save 90s Clip** | Standard left-hand thumb + index reach. |
-| **`Ctrl + X`** | **Save 90s Clip** | Fast two-finger chord during intense gunfights. |
-| **`Ctrl + Shift + X`** | **Save 90s Clip** | Alternative ergonomic reach. |
-| **`Ctrl + Shift + S`** | **Save 90s Clip** | Muscle memory alternative. |
+| **`Ctrl + Shift + C`** | **Save 3-Min Clip** | Standard left-hand thumb + index reach. |
+| **`Ctrl + X`** | **Save 3-Min Clip** | Fast two-finger chord during intense gunfights. |
+| **`Ctrl + Shift + X`** | **Save 3-Min Clip** | Alternative ergonomic reach. |
+| **`Ctrl + Shift + S`** | **Save 3-Min Clip** | Muscle memory alternative. |
 
 ---
 
 ## 📁 File Structure
 
 ```text
-ShadowPlay-Pro-OBS/
+obs-replaybuffertool/
 ├── README.md                  # Comprehensive Documentation
 ├── install.ps1                # 1-Click Turnkey PowerShell Installer
 ├── config/
-│   ├── basic.ini              # Tuned OBS Profile (CQP 18, 5 audio tracks, 90s buffer)
-│   └── game_signatures.json   # Known game process database
+│   ├── basic.ini              # Tuned OBS Profile (CQP 18, 5 audio tracks, 180s buffer)
+│   ├── recordEncoder.json     # Low-latency NVENC encoder preset
+│   └── scene_collection.json  # Pre-routed isolated audio sources & game capture
 ├── daemon/
-│   ├── shadowplay_engine.py   # Game detection, clip renamer & audio feedback daemon
-│   └── game_signatures.json   # Process mappings
+│   ├── shadowplay_engine.py   # Game detection, clip renamer, visual tuner & audio cue
+│   └── game_signatures.json   # Known process mappings
 └── scripts/
     ├── start_shadowplay.ps1   # Start all 24/7 background tasks
     └── stop_shadowplay.ps1    # Gracefully stop all background tasks
@@ -125,7 +133,7 @@ ShadowPlay-Pro-OBS/
 ## 🎮 Supported Game Signatures Out of the Box
 
 * **Apex Legends** (`r5apex_dx12.exe`, `r5apex.exe`)
-* **Marvel Rivals** (`MarvelRivals.exe`, `Marvel-Win64-Shipping.exe`)
+* **Marvel Rivals** (`MarvelRivals.exe`, `Marvel-Win64-Shipping.exe`, `Marvel.exe`)
 * **Marvel's Spider-Man 2** (`Spider-Man2.exe`)
 * **Counter-Strike 2** (`cs2.exe`)
 * **Valorant** (`VALORANT-Win64-Shipping.exe`)
