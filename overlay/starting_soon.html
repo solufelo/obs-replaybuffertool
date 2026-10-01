@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stream Starting Soon</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: radial-gradient(circle at center, #0F1722 0%, #070A0F 100%);
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    /* Ambient Cyber Grid Background */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(0, 255, 102, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 255, 102, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 80%);
+    }
+    /* Center Card */
+    .center-card {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(14, 20, 28, 0.7);
+      backdrop-filter: blur(20px);
+      padding: 50px 80px;
+      border-radius: 16px;
+      border: 1.5px solid rgba(0, 255, 102, 0.35);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 255, 102, 0.15);
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 255, 102, 0.1);
+      border: 1px solid rgba(0, 255, 102, 0.4);
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #00FF66;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #00FF66;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.8); opacity: 0.5; }
+    }
+    .status-text {
+      color: #00FF66;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .main-title {
+      font-size: 64px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+      margin-bottom: 8px;
+    }
+    .creator-name {
+      font-size: 28px;
+      font-weight: 800;
+      color: #00FF66;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 35px;
+    }
+    /* Timer Display */
+    .timer {
+      font-size: 72px;
+      font-weight: 800;
+      color: #FFFFFF;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 4px;
+      background: rgba(8, 12, 18, 0.8);
+      padding: 12px 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+      margin-bottom: 30px;
+    }
+    /* Audio Equalizer Waves */
+    .eq-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 40px;
+      margin-bottom: 30px;
+    }
+    .eq-bar {
+      width: 6px;
+      background: #00FF66;
+      border-radius: 3px;
+      animation: eq 1.2s infinite ease-in-out;
+      box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+    }
+    .eq-bar:nth-child(1) { height: 15px; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 35px; animation-delay: 0.3s; }
+    .eq-bar:nth-child(3) { height: 25px; animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { height: 40px; animation-delay: 0.4s; }
+    .eq-bar:nth-child(5) { height: 20px; animation-delay: 0.2s; }
+    .eq-bar:nth-child(6) { height: 30px; animation-delay: 0.5s; }
+    .eq-bar:nth-child(7) { height: 18px; animation-delay: 0.1s; }
+    @keyframes eq {
+      0%, 100% { transform: scaleY(0.4); }
+      50% { transform: scaleY(1.0); }
+    }
+    /* Socials Footer */
+    .socials-bar {
+      display: flex;
+      gap: 30px;
+    }
+    .social-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #9CA3AF;
+      letter-spacing: 1px;
+    }
+    .social-item span {
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+
+  <div class="center-card">
+    <div class="status-badge">
+      <div class="pulse-dot"></div>
+      <span class="status-text">Broadcasting Soon</span>
+    </div>
+
+    <h1 class="main-title">Stream Starting</h1>
+    <div class="creator-name">caaptainsolo • Octane Demon</div>
+
+    <div class="timer" id="countdown">04:59</div>
+
+    <div class="eq-container">
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+    </div>
+
+    <div class="socials-bar">
+      <div class="social-item">🟣 Twitch: <span>caaptainsolo</span></div>
+      <div class="social-item">🔴 YouTube: <span>@caaptainsolo</span></div>
+      <div class="social-item">🎵 TikTok: <span>@caaptainsolo</span></div>
+      <div class="social-item">💬 Discord: <span>Solo Squad</span></div>
+    </div>
+  </div>
+
+  <script>
+    let timeLeft = 300; // 5 minutes
+    const display = document.getElementById('countdown');
+    setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const secs = String(timeLeft % 60).padStart(2, '0');
+        display.textContent = `${mins}:${secs}`;
+      } else {
+        display.textContent = "READY!";
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

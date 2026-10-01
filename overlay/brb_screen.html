@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Be Right Back / Intermission</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: radial-gradient(circle at center, #101824 0%, #06090E 100%);
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(0, 255, 102, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 255, 102, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 80%);
+    }
+    .center-card {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(14, 20, 28, 0.75);
+      backdrop-filter: blur(20px);
+      padding: 50px 80px;
+      border-radius: 16px;
+      border: 1.5px solid rgba(0, 255, 102, 0.35);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 255, 102, 0.15);
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 170, 0, 0.1);
+      border: 1px solid rgba(255, 170, 0, 0.4);
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #FFAA00;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #FFAA00;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.8); opacity: 0.5; }
+    }
+    .status-text {
+      color: #FFAA00;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .main-title {
+      font-size: 64px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 20px;
+      font-weight: 600;
+      color: #9CA3AF;
+      letter-spacing: 1px;
+      margin-bottom: 35px;
+    }
+    .rank-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(8, 12, 18, 0.8);
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      margin-bottom: 35px;
+    }
+    .rank-pill img {
+      width: 38px;
+      height: 38px;
+    }
+    .rank-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: 1px;
+    }
+    .rank-rp {
+      font-size: 16px;
+      font-weight: 700;
+      color: #00FF66;
+      margin-left: 10px;
+    }
+    .socials-bar {
+      display: flex;
+      gap: 30px;
+    }
+    .social-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #9CA3AF;
+      letter-spacing: 1px;
+    }
+    .social-item span {
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+
+  <div class="center-card">
+    <div class="status-badge">
+      <div class="pulse-dot"></div>
+      <span class="status-text">Intermission / Quick Break</span>
+    </div>
+
+    <h1 class="main-title">Be Right Back</h1>
+    <div class="subtitle">Hydrating & Getting Ready For The Next Drop • caaptainsolo</div>
+
+    <div class="rank-pill">
+      <img src="https://assets.tas.gg/br-ranked-badge.php?rank=Platinum&division=2" alt="Platinum II">
+      <span class="rank-text">PLATINUM II</span>
+      <span class="rank-rp">10,215 RP</span>
+    </div>
+
+    <div class="socials-bar">
+      <div class="social-item">🟣 Twitch: <span>caaptainsolo</span></div>
+      <div class="social-item">🔴 YouTube: <span>@caaptainsolo</span></div>
+      <div class="social-item">🎵 TikTok: <span>@caaptainsolo</span></div>
+      <div class="social-item">💬 Discord: <span>Solo Squad</span></div>
+    </div>
+  </div>
+</body>
+</html>

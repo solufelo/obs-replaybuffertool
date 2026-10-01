@@ -220,6 +220,8 @@ def organize_clip(file_path):
 
         # Log metadata
         meta_log = CLIPS_BASE_DIR / "clips_index.jsonl"
+        latest_json = CLIPS_BASE_DIR / "latest_clip.json"
+        latest_txt = CLIPS_BASE_DIR / "latest_clip_path.txt"
         entry = {
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "game": game_name,
@@ -229,6 +231,10 @@ def organize_clip(file_path):
         }
         with open(meta_log, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry) + "\n")
+        with open(latest_json, "w", encoding="utf-8") as f:
+            json.dump(entry, f, indent=2)
+        with open(latest_txt, "w", encoding="utf-8") as f:
+            f.write(str(dest_path))
 
     except Exception:
         winsound.Beep(1000, 100)

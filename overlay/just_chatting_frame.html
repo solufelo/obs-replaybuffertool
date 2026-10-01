@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just Chatting Overlay</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: transparent;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      position: relative;
+    }
+
+    /* Left Camera Cutout Border */
+    .cam-frame {
+      position: absolute;
+      left: 60px;
+      top: 80px;
+      width: 1140px;
+      height: 760px;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 255, 102, 0.5);
+      box-shadow: 0 0 25px rgba(0, 255, 102, 0.15), inset 0 0 20px rgba(0, 255, 102, 0.08);
+      pointer-events: none;
+    }
+    .corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #00FF66;
+      box-shadow: 0 0 10px #00FF66;
+    }
+    .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-top-left-radius: 12px; }
+    .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-top-right-radius: 12px; }
+    .bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-bottom-left-radius: 12px; }
+    .bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-bottom-right-radius: 12px; }
+
+    .cam-header {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(10, 14, 20, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 255, 102, 0.4);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #FF0055;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #FF0055;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .cam-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 1.5px;
+    }
+    .cam-creator {
+      font-size: 13px;
+      font-weight: 800;
+      color: #00FF66;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding-left: 8px;
+      border-left: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Right Sidebar Containers */
+    .chat-box {
+      position: absolute;
+      left: 1230px;
+      top: 360px;
+      width: 630px;
+      height: 480px;
+      background: rgba(14, 20, 28, 0.85);
+      backdrop-filter: blur(16px);
+      border-radius: 12px;
+      border: 1.5px solid rgba(0, 255, 102, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-header {
+      padding: 12px 18px;
+      background: rgba(8, 12, 18, 0.9);
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      border-bottom: 1px solid rgba(0, 255, 102, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #00FF66;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Bottom Bar */
+    .bottom-bar {
+      position: absolute;
+      left: 60px;
+      bottom: 50px;
+      width: 1800px;
+      height: 90px;
+      background: rgba(14, 20, 28, 0.92);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      border: 1.5px solid rgba(0, 255, 102, 0.35);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 102, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 35px;
+    }
+    .branding-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-logo {
+      font-size: 20px;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .brand-tag {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0A0E14;
+      background: #00FF66;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .social-pills {
+      display: flex;
+      gap: 20px;
+    }
+    .social-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #D1D5DB;
+    }
+    .social-pill strong {
+      color: #00FF66;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Cutout Backdrop -->
+  <svg width="1920" height="1080" style="position: absolute; inset: 0; pointer-events: none;">
+    <defs>
+      <mask id="camHole">
+        <rect width="1920" height="1080" fill="white" />
+        <rect x="60" y="80" width="1140" height="760" rx="12" fill="black" />
+      </mask>
+      <pattern id="cyberGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+        <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(0, 255, 102, 0.04)" stroke-width="1" />
+      </pattern>
+    </defs>
+    <!-- Background fill with cutouts for cam and TAS overlay -->
+    <rect width="1920" height="1080" fill="#0A0F17" mask="url(#camHole)" />
+    <rect width="1920" height="1080" fill="url(#cyberGrid)" mask="url(#camHole)" />
+  </svg>
+
+  <!-- Camera Outer Frame & Brackets -->
+  <div class="cam-frame">
+    <div class="corner top-left"></div>
+    <div class="corner top-right"></div>
+    <div class="corner bottom-left"></div>
+    <div class="corner bottom-right"></div>
+
+    <div class="cam-header">
+      <div class="pulse-dot"></div>
+      <span class="cam-title">FULL CAM</span>
+      <span class="cam-creator">caaptainsolo</span>
+    </div>
+  </div>
+
+  <!-- Chat Box Placeholder -->
+  <div class="chat-box">
+    <div class="chat-header">
+      <span>💬 Live Stream Chat</span>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="branding-group">
+      <span class="brand-logo">caaptainsolo</span>
+      <span class="brand-tag">Octane Demon</span>
+      <span style="color: #9CA3AF; font-size: 14px; font-weight: 600;">• Master Gameplay & Community Vibes</span>
+    </div>
+
+    <div class="social-pills">
+      <div class="social-pill">🟣 Twitch: <strong>caaptainsolo</strong></div>
+      <div class="social-pill">🔴 YouTube: <strong>@caaptainsolo</strong></div>
+      <div class="social-pill">🎵 TikTok: <strong>@caaptainsolo</strong></div>
+      <div class="social-pill">💬 Discord: <strong>Solo Squad</strong></div>
+    </div>
+  </div>
+</body>
+</html>

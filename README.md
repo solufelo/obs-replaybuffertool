@@ -41,6 +41,11 @@
 * **📊 Twitch Apex Stats (TAS) Live Ranked Integration:**
   * **Real-Time Ranked HUD:** Live Platinum II / Predator rank badge, current RP (`10,215`), session RP change (`+/-`), match history, and progression bar to next rank (`Diamond IV`).
   * **Optimized Stream Geometry:** Positioned at `(25, 270)` directly below the mini-map, leaving the entire combat viewport, crosshair, and teammate banners 100% unobstructed.
+* **🎥 4-Scene Broadcast Production Suite:**
+  * **1. GAMEPLAY ULTRA (Active):** High-refresh game capture, widescreen cropped webcam with neon-green Octane frame (`webcam_frame.html`), Octane Speed Demon input overlay, rotating social ticker (`social_ticker.html`), and live TAS ranked RP badge.
+  * **2. JUST CHATTING / FULL CAM (Vibes):** Large cinematic camera with cyber-mesh frame, live chat card, TAS RP badge, creator bio, and rotating social pill ticker for engaging with chat between games.
+  * **3. BE RIGHT BACK / INTERMISSION:** Ambient intermission screen with rank pill, socials, and background music.
+  * **4. STREAM STARTING SOON:** Pulsing neon broadcast countdown, audio waves, and socials.
 * **🛡️ Silent Boot & Zero Twitch Error Popups:** Purged broken OAuth dock tokens while preserving direct high-bitrate RTMP stream keys for Twitch, Kick, and YouTube. OBS boots into tray completely silently with zero error dialogs.
 
 ---
@@ -72,6 +77,7 @@ flowchart TD
         Tuner["Real-Time OBS WebSocket Visual Tuner"]
         Sorter["Dynamic File Renamer & Organizer"]
         AudioCue["Headphone Boop-Beep Feedback"]
+        Pointer["Latest Clip Pointer (JSON/TXT)"]
     end
 
     Game --> VFX --> RB
@@ -80,6 +86,7 @@ flowchart TD
     Daemon --> Sorter --> SSD
     Daemon --> Tuner --> VFX
     Daemon --> AudioCue
+    Daemon --> Pointer
 ```
 
 ---
@@ -107,7 +114,7 @@ flowchart TD
 
 ---
 
-## 🎛️ Default Keybinds (65% Keyboard Layout)
+## 🎛️ Default Keybinds & Stream Hotkeys
 
 | Hotkey | Action | Description |
 | :--- | :--- | :--- |
@@ -115,6 +122,10 @@ flowchart TD
 | **`Ctrl + X`** | **Save 3-Min Clip** | Fast two-finger chord during intense gunfights. |
 | **`Ctrl + Shift + X`** | **Save 3-Min Clip** | Alternative ergonomic reach. |
 | **`Ctrl + Shift + S`** | **Save 3-Min Clip** | Muscle memory alternative. |
+| **`Ctrl + F1` / `F6`** | **Gameplay Ultra** | Switch to main gaming scene with HUD & input overlay. |
+| **`Ctrl + F2` / `F7`** | **Just Chatting** | Switch to full-cam cinematic engagement scene. |
+| **`Ctrl + F3` / `F8`** | **Be Right Back** | Switch to ambient break/intermission screen. |
+| **`Ctrl + F4` / `F5`** | **Starting Soon** | Switch to stream starting countdown screen. |
 
 ---
 
@@ -127,18 +138,22 @@ obs-replaybuffertool/
 ├── config/
 │   ├── basic.ini              # Tuned OBS Profile (CQP 18, 5 audio tracks, 180s buffer)
 │   ├── recordEncoder.json     # Low-latency NVENC encoder preset
-│   └── scene_collection.json  # Pre-routed isolated audio sources, game capture & overlay
+│   └── scene_collection.json  # 4 Pre-routed broadcast scenes, audio isolation & overlays
 ├── daemon/
 │   ├── shadowplay_engine.py   # Game detection, clip renamer, visual tuner & audio cue
 │   ├── input_overlay_daemon.py# Low-latency Win32 input hook & WebSocket broadcast server
 │   └── game_signatures.json   # Known process mappings
 ├── overlay/
-│   └── index.html             # Hardware-accelerated Mokey HUD browser source
+│   ├── index.html             # Octane Speed Demon movement & ability input overlay
+│   ├── webcam_frame.html      # Octane neon-green camera frame with LIVE badge
+│   ├── social_ticker.html     # Dynamic rotating creator social marquee ticker
+│   ├── just_chatting_frame.html# Just Chatting broadcast layout with SVG cam cutout
+│   ├── starting_soon.html     # High-production animated starting soon screen
+│   └── brb_screen.html        # High-production animated intermission screen
 ├── tools/
 │   └── NohBoard/              # Standalone NohBoard-ReWrite with MokeyApex layout
 └── scripts/
     ├── start_shadowplay.ps1   # Start all 24/7 background tasks
-    └── stop_shadowplay.ps1    # Gracefully stop all background tasks
 ```
 
 ---
