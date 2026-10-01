@@ -2,378 +2,303 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Captain Solo Input Visualizer</title>
-  <script src="theme.js"></script>
+  <title>Captain Solo Precision Telemetry</title>
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       user-select: none;
       -webkit-user-select: none;
     }
 
     body {
-      margin: 0;
-      padding: 10px;
       background: transparent;
+      width: 360px;
+      height: 130px;
       overflow: hidden;
-      font-family: 'Rajdhani', 'Eurostile', 'DIN Alternate', 'Segoe UI Bold', 'Arial Black', sans-serif;
-      font-weight: 700;
-      color: #FFFFFF;
-      text-transform: uppercase;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* THEME VARIABLES */
-    body.theme-solo {
-      --accent: #00E5FF;
-      --accent-bg: rgba(0, 229, 255, 0.1);
-      --accent-border: rgba(0, 229, 255, 0.35);
-      --accent-glow: rgba(0, 229, 255, 0.25);
-      --container-bg: rgba(10, 15, 24, 0.85);
-      --container-border: rgba(0, 229, 255, 0.3);
-      --container-glow: rgba(0, 229, 255, 0.12);
-    }
-    body.theme-octane {
-      --accent: #00FF66;
-      --accent-bg: rgba(0, 255, 102, 0.1);
-      --accent-border: rgba(0, 255, 102, 0.45);
-      --accent-glow: rgba(0, 255, 102, 0.25);
-      --container-bg: rgba(10, 16, 12, 0.85);
-      --container-border: rgba(0, 255, 102, 0.35);
-      --container-glow: rgba(0, 255, 102, 0.12);
-    }
-    body.theme-stealth {
-      --accent: #FFFFFF;
-      --accent-bg: rgba(255, 255, 255, 0.1);
-      --accent-border: rgba(255, 255, 255, 0.3);
-      --accent-glow: rgba(255, 255, 255, 0.15);
-      --container-bg: rgba(12, 12, 14, 0.9);
-      --container-border: rgba(255, 255, 255, 0.2);
-      --container-glow: rgba(255, 255, 255, 0.05);
-    }
-
-    /* Container */
-    .overlay-container {
-      display: inline-flex;
+    /* Precision Smoked Glass Console */
+    .telemetry-card {
+      width: 356px;
+      height: 126px;
+      background: rgba(9, 11, 15, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 7px;
+      box-shadow: 
+        0 14px 36px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      padding: 7px 10px;
+      display: flex;
       flex-direction: column;
-      gap: 5px;
-      padding: 8px 14px;
-      background: var(--container-bg);
-      border-radius: 8px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7), 0 0 12px var(--container-glow);
-      border: 1px solid var(--container-border);
-      transition: all 0.3s ease;
+      justify-content: space-between;
     }
 
+    /* Micro Header Bar */
+    .telemetry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 13px;
+      padding: 0 2px;
+      margin-bottom: 2px;
+    }
+
+    .telemetry-title {
+      font-size: 8.5px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-dot {
+      width: 4px;
+      height: 4px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      opacity: 0.8;
+    }
+
+    .rate-badge {
+      font-size: 8px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 0.12em;
+    }
+
+    /* Key Rows */
     .row {
       display: flex;
       align-items: center;
-      gap: 6px;
-      height: 32px;
+      gap: 5px;
+      height: 29px;
     }
 
-    /* Standard Key Styling */
-    .key-box {
+    /* Base Keycap Styling */
+    .key {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 30px;
-      min-width: 30px;
-      padding: 0 6px;
-      font-size: 16px;
-      letter-spacing: 0.05em;
-      color: #FFFFFF;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      height: 28px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.13);
       border-radius: 4px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
-      transition: background 0.03s ease, color 0.03s ease, box-shadow 0.03s ease;
-    }
-
-    /* Standard Active Inverted White Key Highlight */
-    .key-box.active {
-      background: #FFFFFF !important;
-      color: #000000 !important;
-      font-weight: 900;
-      text-shadow: none !important;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
-    }
-
-    .action-label {
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      padding: 0 8px;
-      min-width: 65px;
-    }
-
-    /* Octane Stim Syringe Keybox */
-    .stim-box {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 0 8px;
-      min-width: 78px;
-      background: rgba(0, 255, 102, 0.1);
-      border: 1px solid rgba(0, 255, 102, 0.45);
-      color: #FFFFFF;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      transition: background 0.02s ease, color 0.02s ease, border-color 0.02s ease, box-shadow 0.02s ease;
       cursor: default;
     }
 
-    .stim-box svg {
-      width: 20px;
-      height: 20px;
-      transition: transform 0.04s ease;
+    /* Instantaneous Crisp Inverted Activation */
+    .key.active {
+      background: #FFFFFF !important;
+      color: #0A0C10 !important;
+      border-color: #FFFFFF !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.6) !important;
     }
 
-    .stim-box .stim-text {
-      font-size: 13px;
-      font-weight: 800;
+    /* Key Proportions */
+    .w-key { width: 32px; }
+    .wasd { width: 32px; }
+    
+    .tactical-key {
+      width: 58px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .tactical-sub {
+      font-size: 8px;
+      font-weight: 600;
+      opacity: 0.6;
+      letter-spacing: 0.08em;
+    }
+    .key.active .tactical-sub {
+      opacity: 0.8;
+      color: #0A0C10;
+    }
+
+    .interact-key {
+      width: 54px;
+      font-size: 11px;
+    }
+
+    .sprint-key {
+      width: 58px;
+      font-size: 10px;
       letter-spacing: 0.08em;
     }
 
-    /* Stim / Ability Active State */
-    .stim-box.active {
-      background: var(--accent) !important;
-      color: #0A0E14 !important;
-      font-weight: 900;
-      border-color: var(--accent) !important;
-      box-shadow: 0 0 20px var(--accent), inset 0 0 8px rgba(255, 255, 255, 0.7) !important;
-      text-shadow: none !important;
+    .crouch-key {
+      width: 68px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
     }
 
-    .stim-box.active svg {
-      transform: scale(1.1) rotate(-5deg);
+    .holster-key {
+      width: 58px;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
     }
 
-    .stim-box.active svg path,
-    .stim-box.active svg rect,
-    .stim-box.active svg line,
-    .stim-box.active svg circle {
-      stroke: #0A0E14 !important;
-      fill: #0A0E14 !important;
-    }
-
-    /* Octane Jump Pad & Actions */
-    .jump-box {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
+    .jump-key {
       flex: 1;
-      min-width: 90px;
+      height: 28px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
     }
 
-    .jump-box svg {
-      width: 16px;
-      height: 16px;
-      fill: none;
-      stroke: currentColor;
-    }
-
-    .icon-box {
+    /* Scroll Wheel Indicator */
+    .wheel-pip {
+      width: 22px;
+      height: 28px;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 30px;
-      width: 36px;
-      color: #FFFFFF;
-      fill: #FFFFFF;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.03s ease;
     }
-
-    .icon-box svg {
-      width: 20px;
-      height: 18px;
-      fill: currentColor;
-    }
-
-    .icon-box.active {
+    .wheel-pip.active {
       background: #FFFFFF !important;
-      color: #000000 !important;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
-    }
-
-    .icon-box.active svg {
-      fill: #000000 !important;
-    }
-
-    /* Sprint Chevrons */
-    .sprint-box {
-      min-width: 32px;
-      font-size: 15px;
-      color: var(--accent);
-      border-color: var(--accent-border);
-    }
-
-    .sprint-box.active {
-      background: var(--accent) !important;
-      color: #0A0E14 !important;
-      box-shadow: 0 0 14px var(--accent) !important;
+      color: #0A0C10 !important;
+      border-color: #FFFFFF !important;
+      font-weight: 900 !important;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
     }
 
     /* Mouse Visualizer */
-    .mouse-hud {
+    .mouse-cluster {
       display: flex;
       align-items: center;
-      gap: 4px;
-      margin-left: 6px;
+      margin-left: auto;
       padding-left: 6px;
-      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .mouse-body {
+    .mouse-shell {
       position: relative;
       width: 24px;
       height: 38px;
-      border: 2px solid rgba(255, 255, 255, 0.7);
-      border-radius: 12px 12px 10px 10px;
-      overflow: hidden;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px 12px 8px 8px;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
     }
 
-    .mouse-top {
+    .mouse-split {
       display: flex;
       width: 100%;
-      height: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      height: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     .mouse-btn {
       flex: 1;
       height: 100%;
-      transition: background 0.03s ease;
+      transition: background 0.02s ease;
     }
-
     .mouse-btn.left {
-      border-right: 1px solid rgba(255, 255, 255, 0.4);
+      border-right: 1px solid rgba(255, 255, 255, 0.25);
     }
-
     .mouse-btn.active {
       background: #FFFFFF !important;
-      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
     }
 
-    .mouse-wheel {
+    .mouse-wheel-track {
       position: absolute;
-      top: 4px;
+      top: 5px;
       left: 50%;
       transform: translateX(-50%);
-      width: 4px;
-      height: 9px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 2px;
-      transition: background 0.04s ease, transform 0.04s ease, box-shadow 0.04s ease;
+      width: 3px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 1.5px;
+      transition: all 0.03s ease;
     }
-
-    .mouse-wheel.up {
-      background: var(--accent) !important;
+    .mouse-wheel-track.up {
+      background: #FFFFFF !important;
       transform: translateX(-50%) translateY(-2px);
-      box-shadow: 0 0 10px var(--accent);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
     }
-
-    .mouse-wheel.down {
-      background: var(--accent) !important;
+    .mouse-wheel-track.down {
+      background: #FFFFFF !important;
       transform: translateX(-50%) translateY(2px);
-      box-shadow: 0 0 10px var(--accent);
-    }
-
-    /* Scroll Indicators */
-    .wheel-indicator {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-      transition: all 0.05s ease;
-    }
-
-    .wheel-indicator.active {
-      color: #0A0E14;
-      background: var(--accent);
-      font-weight: 900;
-      border-color: var(--accent);
-      box-shadow: 0 0 12px var(--accent);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
     }
   </style>
 </head>
 <body>
-
-  <div class="overlay-container">
-    <!-- Row 1: Octane Stim Syringe (Left Alt / P), W, INTERACT, Tap-Strafe Wheel Up, Mouse -->
-    <div class="row">
-      <!-- Octane Stim Syringe -->
-      <div id="key-stim" class="key-box stim-box" title="Octane Stim (Left Alt / P)">
-        <svg class="stim-icon" viewBox="0 0 32 32">
-          <!-- Needle -->
-          <path d="M5 27 L10 22" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-          <!-- Needle Hub -->
-          <path d="M9 23 L11 25 L13 23 L11 21 Z" fill="#FFFFFF"/>
-          <!-- Fluid Barrel with Toxic Green Core -->
-          <rect x="11" y="9" width="10" height="6" transform="rotate(-45 16 12)" fill="#00FF66" stroke="#FFFFFF" stroke-width="1.5" rx="1"/>
-          <!-- Liquid Core Line -->
-          <line x1="12" y1="20" x2="20" y2="12" stroke="#39FF14" stroke-width="2" stroke-linecap="round"/>
-          <!-- Flanges / Grip -->
-          <path d="M19 9 L25 15 L23 17 L17 11 Z" fill="#FFFFFF"/>
-          <!-- Plunger Shaft & Ring -->
-          <line x1="23" y1="11" x2="27" y2="7" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="28" cy="6" r="2.5" stroke="#FFFFFF" stroke-width="1.8" fill="none"/>
-        </svg>
-        <span class="stim-text">STIM</span>
+  <div class="telemetry-card">
+    <!-- Top Telemetry Micro Header -->
+    <div class="telemetry-header">
+      <div class="telemetry-title">
+        <div class="status-dot"></div>
+        <span>TELEMETRY // INPUT</span>
       </div>
+      <div class="rate-badge">120HZ LOW-LATENCY</div>
+    </div>
 
-      <div id="key-w" class="key-box">W</div>
-      <div id="key-interact" class="key-box action-label">INTERACT</div>
-      <div id="wheel-up" class="wheel-indicator" title="Tap-Strafe (Wheel Up)">▲</div>
-      
-      <!-- Mouse Visualizer -->
-      <div class="mouse-hud">
-        <div class="mouse-body">
-          <div class="mouse-top">
+    <!-- Row 1: Tactical [P / Alt], W, Interact [E], Wheel Up, Mouse -->
+    <div class="row">
+      <div id="key-stim" class="key tactical-key" title="Tactical Ability (P / Left Alt)">
+        <span>P</span>
+        <span class="tactical-sub">TAC</span>
+      </div>
+      <div id="key-w" class="key wasd">W</div>
+      <div id="key-interact" class="key interact-key">E</div>
+      <div id="wheel-up" class="wheel-pip" title="Tap-Strafe (Wheel Up)">▲</div>
+
+      <!-- Mouse Split Telemetry -->
+      <div class="mouse-cluster">
+        <div class="mouse-shell">
+          <div class="mouse-split">
             <div id="mouse-lmb" class="mouse-btn left"></div>
             <div id="mouse-rmb" class="mouse-btn right"></div>
           </div>
-          <div id="mouse-wheel" class="mouse-wheel"></div>
+          <div id="mouse-wheel" class="mouse-wheel-track"></div>
         </div>
       </div>
     </div>
 
-    <!-- Row 2: >> Sprint, A, S, D, CROUCH -->
+    <!-- Row 2: Sprint [Shift], A, S, D, Crouch [C / Ctrl] -->
     <div class="row">
-      <div id="key-sprint" class="key-box sprint-box" title="Sprint (Shift)">&gt;&gt;</div>
-      <div id="key-a" class="key-box">A</div>
-      <div id="key-s" class="key-box">S</div>
-      <div id="key-d" class="key-box">D</div>
-      <div id="key-crouch" class="key-box action-label">CROUCH</div>
+      <div id="key-sprint" class="key sprint-key">SHIFT</div>
+      <div id="key-a" class="key wasd">A</div>
+      <div id="key-s" class="key wasd">S</div>
+      <div id="key-d" class="key wasd">D</div>
+      <div id="key-crouch" class="key crouch-key">CROUCH</div>
     </div>
 
-    <!-- Row 3: Weapon / Holster, JUMP (Space / Launch Pad), Wheel Down (Bhop) -->
+    <!-- Row 3: Holster [3], Space [Jump], Wheel Down [Bhop] -->
     <div class="row">
-      <div id="btn-weapon" class="icon-box" title="Weapon / Holster (1, 2, 3, MB4)">
-        <svg viewBox="0 0 24 24">
-          <path d="M21 7l-2-2H8l-2 2H2v4h4l2-2h4v2l3 1v3h3v-4l3-2V7zm-9 2H9l1-1h2v1z"/>
-        </svg>
-      </div>
-
-      <!-- Jump / Octane Launch Pad -->
-      <div id="key-jump" class="key-box action-label jump-box" title="Jump / Launch Pad (Space)">
-        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: currentColor; fill: none;">
-          <circle cx="12" cy="12" r="8" stroke-width="1.8"/>
-          <circle cx="12" cy="12" r="3" fill="#00FF66"/>
-          <path d="M8 14 L12 10 L16 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>JUMP</span>
-      </div>
-
-      <div id="wheel-down" class="wheel-indicator" title="Bhop / Jump (Wheel Down)">▼</div>
+      <div id="btn-weapon" class="key holster-key" title="Holster / Cycle (3 / MB4)">HOLSTER</div>
+      <div id="key-jump" class="key jump-key">SPACE</div>
+      <div id="wheel-down" class="wheel-pip" title="Bhop / Jump (Wheel Down)">▼</div>
     </div>
   </div>
 
@@ -396,46 +321,6 @@
       'MOUSE_WHEEL': document.getElementById('mouse-wheel')
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const theme = urlParams.get('theme') || window.ACTIVE_THEME || 'solo';
-    document.body.className = `theme-${theme}`;
-
-    if (theme === 'solo') {
-      const stim = document.getElementById('key-stim');
-      stim.title = "Tactical Ability (Left Alt / P / Q)";
-      stim.innerHTML = `
-        <svg class="stim-icon" viewBox="0 0 24 24" style="width: 17px; height: 17px; fill: var(--accent);">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-        </svg>
-        <span class="stim-text" style="color: var(--accent);">ABIL</span>
-      `;
-      const jump = document.getElementById('key-jump');
-      jump.title = "Jump (Space)";
-      jump.innerHTML = `
-        <svg viewBox="0 0 24 24" style="width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;">
-          <path d="M12 19V5M5 12l7-7 7 7"/>
-        </svg>
-        <span>JUMP</span>
-      `;
-    } else if (theme === 'stealth') {
-      const stim = document.getElementById('key-stim');
-      stim.title = "Tactical Ability";
-      stim.innerHTML = `
-        <svg class="stim-icon" viewBox="0 0 24 24" style="width: 15px; height: 15px; stroke: #FFFFFF; fill: none; stroke-width: 2;">
-          <path d="M12 2l8 4.5v9L12 20l-8-4.5v-9z"/>
-        </svg>
-        <span class="stim-text">ABILITY</span>
-      `;
-      const jump = document.getElementById('key-jump');
-      jump.title = "Jump (Space)";
-      jump.innerHTML = `
-        <svg viewBox="0 0 24 24" style="width: 15px; height: 15px; stroke: #FFFFFF; fill: none; stroke-width: 2;">
-          <path d="M12 19V5M5 12l7-7 7 7"/>
-        </svg>
-        <span>JUMP</span>
-      `;
-    }
-
     let wheelUpTimer = null;
     let wheelDownTimer = null;
 
@@ -455,31 +340,27 @@
       if (direction === 'up') {
         const ind = elements['WHEEL_UP'];
         ind.classList.add('active');
-        wheel.className = 'mouse-wheel up';
+        wheel.className = 'mouse-wheel-track up';
         clearTimeout(wheelUpTimer);
         wheelUpTimer = setTimeout(() => {
           ind.classList.remove('active');
-          wheel.className = 'mouse-wheel';
+          wheel.className = 'mouse-wheel-track';
         }, 90);
       } else if (direction === 'down') {
         const ind = elements['WHEEL_DOWN'];
         ind.classList.add('active');
-        wheel.className = 'mouse-wheel down';
+        wheel.className = 'mouse-wheel-track down';
         clearTimeout(wheelDownTimer);
         wheelDownTimer = setTimeout(() => {
           ind.classList.remove('active');
-          wheel.className = 'mouse-wheel';
+          wheel.className = 'mouse-wheel-track';
         }, 90);
       }
     }
 
-    // Connect to local WebSocket input daemon
+    // Connect to Win32 Input Daemon WebSocket
     function connectWS() {
       const ws = new WebSocket('ws://127.0.0.1:8998/ws');
-
-      ws.onopen = () => {
-        console.log('[OctaneOverlay] Connected to input daemon on 8998');
-      };
 
       ws.onmessage = (event) => {
         try {
@@ -503,7 +384,7 @@
 
     connectWS();
 
-    // Local Browser Event Listener for standalone preview & debugging
+    // Local Window Fallback for Debugging / Direct Browser Previews
     window.addEventListener('keydown', (e) => {
       const k = e.key.toUpperCase();
       if (k === 'W') setKey('W', true);

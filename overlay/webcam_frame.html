@@ -4,197 +4,106 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Captain Solo Webcam Frame</title>
-  <script src="theme.js"></script>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
       background: transparent;
       width: 360px;
       height: 266px;
       overflow: hidden;
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif;
       position: relative;
     }
+
+    /* Precision Smoked Glass Bezel */
     .frame-container {
       position: absolute;
-      inset: 2px;
-      border-radius: 8px;
-      border: 2px solid var(--accent-border);
-      box-shadow: 0 0 14px var(--accent-glow), inset 0 0 14px var(--accent-glow-subtle);
+      inset: 1px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 
+        0 14px 36px rgba(0, 0, 0, 0.75),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
       pointer-events: none;
-      transition: all 0.3s ease;
-    }
-    .corner {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      border: 3px solid var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-    }
-    .top-left {
-      top: -2px;
-      left: -2px;
-      border-right: none;
-      border-bottom: none;
-      border-top-left-radius: 8px;
-    }
-    .top-right {
-      top: -2px;
-      right: -2px;
-      border-left: none;
-      border-bottom: none;
-      border-top-right-radius: 8px;
-    }
-    .bottom-left {
-      bottom: -2px;
-      left: -2px;
-      border-right: none;
-      border-top: none;
-      border-bottom-left-radius: 8px;
-    }
-    .bottom-right {
-      bottom: -2px;
-      right: -2px;
-      border-left: none;
-      border-top: none;
-      border-bottom-right-radius: 8px;
-    }
-    .header-badge {
-      position: absolute;
-      top: 6px;
-      left: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(10, 14, 20, 0.88);
-      backdrop-filter: blur(8px);
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--accent-subtle);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    }
-    .dot {
-      width: 7px;
-      height: 7px;
-      background: #FF0055;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #FF0055;
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-    .live-text {
-      font-size: 10px;
-      font-weight: 900;
-      color: #FFFFFF;
-      letter-spacing: 1px;
-    }
-    .name-text {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      padding-left: 4px;
-      border-left: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .footer-badge {
-      position: absolute;
-      bottom: 6px;
-      right: 10px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(10, 14, 20, 0.88);
-      backdrop-filter: blur(8px);
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--accent-subtle);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    }
-    .footer-text {
-      font-size: 10px;
-      font-weight: 800;
-      color: #D1D5DB;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-    .footer-accent {
-      color: var(--accent);
-      font-weight: 900;
+      overflow: hidden;
     }
 
-    /* THEME PRESETS */
-    /* Theme: solo (Signature Captain Solo) */
-    body.theme-solo {
-      --accent: #00E5FF;
-      --accent-border: rgba(0, 229, 255, 0.55);
-      --accent-glow: rgba(0, 229, 255, 0.25);
-      --accent-glow-subtle: rgba(0, 229, 255, 0.12);
-      --accent-subtle: rgba(0, 229, 255, 0.4);
+    /* Subtle edge vignette to blend camera edges */
+    .inner-vignette {
+      position: absolute;
+      inset: 0;
+      border-radius: 5px;
+      box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.45);
+      pointer-events: none;
     }
-    /* Theme: octane (Apex Speed Demon) */
-    body.theme-octane {
-      --accent: #00FF66;
-      --accent-border: rgba(0, 255, 102, 0.55);
-      --accent-glow: rgba(0, 255, 102, 0.25);
-      --accent-glow-subtle: rgba(0, 255, 102, 0.12);
-      --accent-subtle: rgba(0, 255, 102, 0.4);
+
+    /* Luxury Studio Docked Badge */
+    .studio-tag {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(9, 11, 15, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 5px 12px;
+      border-top-right-radius: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     }
-    /* Theme: stealth (Monochrome Esports) */
-    body.theme-stealth {
-      --accent: #FFFFFF;
-      --accent-border: rgba(255, 255, 255, 0.4);
-      --accent-glow: rgba(255, 255, 255, 0.15);
-      --accent-glow-subtle: rgba(255, 255, 255, 0.05);
-      --accent-subtle: rgba(255, 255, 255, 0.3);
+
+    /* Micro Broadcast Indicator Dot */
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: #FF3B30;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.7);
+      animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    /* Studio Typography */
+    .brand-name {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .brand-channel {
+      font-size: 9px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding-left: 6px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
     }
   </style>
 </head>
-<body class="theme-solo">
+<body>
   <div class="frame-container">
-    <div class="corner top-left"></div>
-    <div class="corner top-right"></div>
-    <div class="corner bottom-left"></div>
-    <div class="corner bottom-right"></div>
+    <div class="inner-vignette"></div>
 
-    <div class="header-badge">
-      <div class="dot"></div>
-      <span class="live-text">LIVE</span>
-      <span class="name-text" id="nameLabel">CAPTAIN SOLO</span>
-    </div>
-
-    <div class="footer-badge" id="footerBadge">
-      <span class="footer-text" id="footerText">POWERHOUSE <span class="footer-accent">⚡</span></span>
+    <div class="studio-tag">
+      <div class="live-dot"></div>
+      <span class="brand-name">CAPTAIN SOLO</span>
+      <span class="brand-channel">STUDIO</span>
     </div>
   </div>
-
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const theme = urlParams.get('theme') || window.ACTIVE_THEME || 'solo';
-    document.body.className = `theme-${theme}`;
-
-    const nameLabel = document.getElementById('nameLabel');
-    const footerText = document.getElementById('footerText');
-    const footerBadge = document.getElementById('footerBadge');
-
-    if (theme === 'octane') {
-      nameLabel.textContent = 'caaptainsolo';
-      footerText.innerHTML = 'Octane Demon <span class="footer-accent">⚡</span>';
-    } else if (theme === 'stealth') {
-      nameLabel.textContent = 'CAPTAIN SOLO';
-      footerBadge.style.display = 'none';
-    } else {
-      // solo (signature)
-      nameLabel.textContent = 'CAPTAIN SOLO';
-      footerText.innerHTML = 'POWERHOUSE <span class="footer-accent">⚡</span>';
-    }
-  </script>
 </body>
 </html>
