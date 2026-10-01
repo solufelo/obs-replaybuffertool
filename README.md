@@ -33,12 +33,14 @@
   * **Fast Tier (NVMe SSD):** 180-Second (3 Full Minutes) Rolling Replay Buffer in RAM (6,144 MB Cache) writing instant highlights to SSD.
   * **Archive Tier (Secondary HDD/NVMe):** Multi-hour full-session recordings write directly to bulk archive storage (`F:\Gameplay_Archive`).
 * **🔔 Audible In-Headset Confirmation:** Ascending double-tone confirmation chime (`1200Hz` → `1800Hz`) played directly through your headphones the millisecond a clip lands on disk.
-* **⌨️ MokeySniper-Style Apex Movement Input Overlay:**
-  * **Zero Input Lag:** Windows low-level hooks (`WH_KEYBOARD_LL`, `WH_MOUSE_LL`) with microsecond bypass on `WM_MOUSEMOVE` for 1000Hz - 8000Hz gaming mice.
-  * **Inverted High-Contrast Blocks:** Real-time solid white active key highlights (`W`, `A`, `S`, `D`, `INTERACT`, `CROUCH`, `JUMP`).
-  * **Apex Movement Visualizer:** Dedicated scroll-wheel pulse animations (`▲` for Tap-Strafe, `▼` for Bunny Hop) and sleek mouse button indicators.
-  * **In-Engine OBS Integration:** Hardware-accelerated Browser Source (`http://127.0.0.1:8998`) with true 32-bit RGBA transparency (no ugly green chroma-key halo).
-  * **NohBoard-ReWrite Alternative:** Pre-configured `MokeyApex` layout with `keyboard.json` and `mokey.style` for creators preferring standalone window capture.
+* **⌨️ Octane Speed Demon Movement & Ability Input Overlay:**
+  * **Zero Input Lag:** Microsecond Win32 polling at 120Hz for 1000Hz - 8000Hz gaming mice and rapid triggers.
+  * **Custom Octane Aesthetics:** Dynamic glowing acid-green Stim Syringe (`#00FF66`) triggered by `Left Alt` (remapped to `P`), `P`, or `Q`; Octane Jump Pad launch indicator on `Space`; weapon holster icon on `Mouse 4` / `1` / `2` / `3`.
+  * **Movement Visualizer:** High-contrast keys (`W`, `A`, `S`, `D`, `INTERACT`, `CROUCH`) with active scroll-wheel directional pulse counters (`▲` for Tap-Strafe, `▼` for Bunny Hop) and live mouse button triggers.
+  * **In-Engine OBS Integration:** Hardware-accelerated Browser Source with true 32-bit RGBA transparency anchored seamlessly below the webcam.
+* **📊 Twitch Apex Stats (TAS) Live Ranked Integration:**
+  * **Real-Time Ranked HUD:** Live Platinum II / Predator rank badge, current RP (`10,215`), session RP change (`+/-`), match history, and progression bar to next rank (`Diamond IV`).
+  * **Optimized Stream Geometry:** Positioned at `(25, 270)` directly below the mini-map, leaving the entire combat viewport, crosshair, and teammate banners 100% unobstructed.
 * **🛡️ Silent Boot & Zero Twitch Error Popups:** Purged broken OAuth dock tokens while preserving direct high-bitrate RTMP stream keys for Twitch, Kick, and YouTube. OBS boots into tray completely silently with zero error dialogs.
 
 ---

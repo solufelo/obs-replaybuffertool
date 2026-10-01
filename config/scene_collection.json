@@ -50,10 +50,10 @@
                     "id": "color_filter",
                     "versioned_id": "color_filter_v2",
                     "settings": {
-                        "gamma": 0.0,
-                        "contrast": 0.02,
+                        "gamma": -0.01,
+                        "contrast": 0.03,
                         "brightness": 0.0,
-                        "saturation": 1.04
+                        "saturation": 1.1
                     },
                     "mixers": 0,
                     "sync": 0,
@@ -79,7 +79,7 @@
                     "id": "sharpness_filter",
                     "versioned_id": "sharpness_filter_v2",
                     "settings": {
-                        "sharpness": 0.02
+                        "sharpness": 0.04
                     },
                     "mixers": 0,
                     "sync": 0,
@@ -337,7 +337,45 @@
                 "height": 130,
                 "fps": 60,
                 "shutdown": false,
-                "restart_when_active": false
+                "restart_when_active": false,
+                "is_local_file": true,
+                "local_file": "C:/Users/Administrator/Desktop/ShadowPlay-Pro-OBS/overlay/index.html"
+            },
+            "mixers": 255,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {
+                "libobs.mute": [],
+                "libobs.unmute": [],
+                "libobs.push-to-mute": [],
+                "libobs.push-to-talk": [],
+                "ObsBrowser.Refresh": []
+            },
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 537001986,
+            "name": "Twitch Apex Stats (Ranked)",
+            "uuid": "1ddc8541-d3ba-462d-b9f0-0465eced3306",
+            "id": "browser_source",
+            "versioned_id": "browser_source",
+            "settings": {
+                "url": "https://overlays.tas.gg/217857230/98130/rp-games-nextrank",
+                "width": 550,
+                "height": 252,
+                "fps": 60,
+                "css": "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
             },
             "mixers": 255,
             "sync": 0,
@@ -369,7 +407,7 @@
             "id": "scene",
             "versioned_id": "scene",
             "settings": {
-                "id_counter": 16,
+                "id_counter": 17,
                 "custom_size": false,
                 "items": [
                     {
@@ -811,6 +849,61 @@
                             "duration": 0
                         },
                         "private_settings": {}
+                    },
+                    {
+                        "name": "Twitch Apex Stats (Ranked)",
+                        "source_uuid": "1ddc8541-d3ba-462d-b9f0-0465eced3306",
+                        "visible": true,
+                        "locked": false,
+                        "rot": 0.0,
+                        "scale_ref": {
+                            "x": 1920.0,
+                            "y": 1080.0
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds_crop": false,
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 17,
+                        "group_item_backup": false,
+                        "pos": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "pos_rel": {
+                            "x": -1.7777777910232544,
+                            "y": -1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "scale_rel": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "bounds_rel": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
                     }
                 ]
             },
@@ -842,7 +935,9 @@
                 "libobs.show_scene_item.15": [],
                 "libobs.hide_scene_item.15": [],
                 "libobs.show_scene_item.16": [],
-                "libobs.hide_scene_item.16": []
+                "libobs.hide_scene_item.16": [],
+                "libobs.show_scene_item.17": [],
+                "libobs.hide_scene_item.17": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -935,7 +1030,7 @@
     "saved_projectors": [],
     "preview_locked": false,
     "scaling_enabled": false,
-    "scaling_level": -69,
+    "scaling_level": -10,
     "scaling_off_x": 0.0,
     "scaling_off_y": 0.0,
     "virtual-camera": {
