@@ -74,7 +74,7 @@ def broadcast_event(data):
 
 # Low-level Mouse Hook for Scroll Wheel (Tap-Strafe & Bunny Hop detection)
 def low_level_mouse_proc(nCode, wParam, lParam):
-    if nCode == HC_ACTION:
+    if nCode == HC_ACTION and connected_clients:
         if wParam == WM_MOUSEMOVE:
             return user32.CallNextHookEx(None, nCode, wParam, lParam)
         if wParam == WM_MOUSEWHEEL:
@@ -86,12 +86,17 @@ def low_level_mouse_proc(nCode, wParam, lParam):
                 broadcast_event({"type": "wheel", "dir": "down"})
     return user32.CallNextHookEx(None, nCode, wParam, lParam)
 
-# 120 FPS Rock-Solid Non-blocking Key State Poller
+# Zero-Overhead Adaptive Poller: 120-240 Hz when active, sleeps when no clients connected
 def poll_keys_thread():
     last_states = {name: False for name in set(VK_MAP.values())}
 
     while True:
         try:
+            if not connected_clients:
+                # Zero CPU when overlay is not being viewed
+                time.sleep(0.20)
+                continue
+
             current_states = {name: False for name in last_states}
             for vk, name in VK_MAP.items():
                 if user32.GetAsyncKeyState(vk) & 0x8000:
@@ -102,7 +107,7 @@ def poll_keys_thread():
                     broadcast_event({"type": "key", "name": name, "down": is_down})
                     last_states[name] = is_down
 
-            time.sleep(0.008)  # ~120 Hz polling, < 0.05% CPU
+            time.sleep(0.005)  # ~200 Hz ultra-low latency response when client active
         except Exception:
             time.sleep(0.05)
 
