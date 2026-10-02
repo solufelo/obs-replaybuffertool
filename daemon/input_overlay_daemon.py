@@ -41,28 +41,35 @@ VK_MAP = {
     0x41: "A",
     0x53: "S",
     0x44: "D",
-    0x50: "STIM",     # 'P' (Tactical / Stim)
-    0x12: "STIM",     # Alt (Tactical / Stim)
-    0xA4: "STIM",     # Left Alt (Swapped for P!)
-    0x51: "STIM",     # 'Q' (Tactical fallback)
-    0x45: "INTERACT", # 'E'
-    0x43: "CROUCH",   # 'C'
-    0x11: "CROUCH",   # Ctrl
-    0xA2: "CROUCH",   # Left Ctrl
-    0x20: "JUMP",     # Space
-    0x10: "SPRINT",   # Shift
-    0x31: "WEAPON1",  # 1
-    0x32: "WEAPON2",  # 2
-    0x33: "HOLSTER",  # 3 (Holster)
-    0x34: "HEAL",     # 4 (Heal)
-    0x05: "HOLSTER",  # Mouse 4 (Holster in user config)
-    0x06: "HEAL",     # Mouse 5 (Heal in user config)
-    0x01: "LMB",
-    0x02: "RMB"
+    0x51: "Q",         # Q (Ability / Gadget / Tactical)
+    0x45: "E",         # E (Interact / Use)
+    0x52: "R",         # R (Reload)
+    0x46: "F",         # F (Melee / Gadget / Interact)
+    0x47: "G",         # G (Grenade)
+    0x56: "V",         # V (Melee)
+    0x43: "C",         # C (Crouch / Slide)
+    0x11: "CTRL",      # Ctrl (Crouch / Prone)
+    0xA2: "CTRL",      # Left Ctrl
+    0x20: "SPACE",     # Space (Jump / Vault)
+    0x10: "SHIFT",     # Shift (Sprint / Zoom)
+    0xA0: "SHIFT",     # Left Shift
+    0x50: "P",         # P (Tactical)
+    0x12: "ALT",       # Alt
+    0xA4: "ALT",       # Left Alt
+    0x31: "1",         # 1
+    0x32: "2",         # 2
+    0x33: "3",         # 3 (Holster)
+    0x34: "4",         # 4 (Heal)
+    0x35: "5",         # 5 (Gadget / Special)
+    0x09: "TAB",       # Tab
+    0x5A: "Z",         # Z
+    0x58: "X",         # X
+    0x42: "B",         # B
 }
 
 OVERLAY_DIR = Path(__file__).resolve().parent.parent / "overlay"
 HTML_FILE = OVERLAY_DIR / "index.html"
+JITTER_FILE = OVERLAY_DIR / "jitter_overlay.html"
 
 connected_clients = set()
 event_loop = None
@@ -102,15 +109,19 @@ def low_level_mouse_proc(nCode, wParam, lParam):
             ms = MSLLHOOKSTRUCT.from_address(lParam)
             xbtn = ms.mouseData >> 16
             if xbtn == 1:
+                broadcast_event({"type": "key", "name": "MB4", "down": True})
                 broadcast_event({"type": "key", "name": "HOLSTER", "down": True})
             elif xbtn == 2:
+                broadcast_event({"type": "key", "name": "MB5", "down": True})
                 broadcast_event({"type": "key", "name": "HEAL", "down": True})
         elif wParam == WM_XBUTTONUP:
             ms = MSLLHOOKSTRUCT.from_address(lParam)
             xbtn = ms.mouseData >> 16
             if xbtn == 1:
+                broadcast_event({"type": "key", "name": "MB4", "down": False})
                 broadcast_event({"type": "key", "name": "HOLSTER", "down": False})
             elif xbtn == 2:
+                broadcast_event({"type": "key", "name": "MB5", "down": False})
                 broadcast_event({"type": "key", "name": "HEAL", "down": False})
     return user32.CallNextHookEx(None, nCode, wParam, lParam)
 
@@ -145,6 +156,11 @@ async def index_handler(request):
         return web.FileResponse(HTML_FILE)
     return web.Response(text="Overlay HTML file not found", status=404)
 
+async def jitter_handler(request):
+    if JITTER_FILE.exists():
+        return web.FileResponse(JITTER_FILE)
+    return web.Response(text="Jitter Overlay HTML file not found", status=404)
+
 async def ws_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
@@ -167,6 +183,11 @@ def run_http_server():
     asyncio.set_event_loop(event_loop)
     app = web.Application()
     app.router.add_get('/', index_handler)
+    app.router.add_get('/index.html', index_handler)
+    app.router.add_get('/jitter', jitter_handler)
+    app.router.add_get('/jitter_overlay.html', jitter_handler)
+    if (OVERLAY_DIR / "assets").exists():
+        app.router.add_static('/assets', OVERLAY_DIR / "assets")
     app.router.add_get('/ws', ws_handler)
     runner = web.AppRunner(app)
     event_loop.run_until_complete(runner.setup())

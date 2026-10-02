@@ -661,17 +661,31 @@
       }, 380);
     }
 
-    function setKey(name, active) {
+    const KEY_ALIASES = {
+      'C': 'CROUCH',
+      'CTRL': 'CROUCH',
+      'SPACE': 'JUMP',
+      'SHIFT': 'SPRINT',
+      'E': 'INTERACT',
+      'P': 'STIM',
+      'ALT': 'STIM',
+      'Q': 'STIM',
+      '3': 'HOLSTER',
+      '4': 'HEAL'
+    };
+
+    function setKey(rawName, active) {
+      const name = KEY_ALIASES[rawName] || rawName;
       recordInputEvent();
       const el = elements[name];
 
       // Side Button Sync: MB4 activates HOLSTER, MB5 activates HEAL
-      if (name === 'HOLSTER') {
+      if (name === 'HOLSTER' || rawName === 'MB4') {
         if (elements['MB4']) {
           if (active) elements['MB4'].classList.add('active');
           else elements['MB4'].classList.remove('active');
         }
-      } else if (name === 'HEAL') {
+      } else if (name === 'HEAL' || rawName === 'MB5') {
         if (elements['MB5']) {
           if (active) elements['MB5'].classList.add('active');
           else elements['MB5'].classList.remove('active');

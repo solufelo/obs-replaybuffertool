@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Captain Solo Universal Jitter HUD</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Fixed 360x130 OBS Canvas - Strictly Bound, Zero Overflow */
+    html, body {
+      width: 360px;
+      height: 130px;
+      max-width: 360px;
+      max-height: 130px;
+      overflow: hidden;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Floating Esports HUD Container - Strict 354x122 Dimensions */
+    .hud-console {
+      width: 354px;
+      height: 122px;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Header: Logo, Identity, Live Jitter Metric & Momentum Meter */
+    .hud-header {
+      height: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3px;
+    }
+
+    .hud-tag {
+      font-size: 7.5px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .brand-logo {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 6px rgba(0, 240, 255, 0.5);
+    }
+
+    .hud-beacon {
+      width: 4px;
+      height: 4px;
+      background: #00F0FF;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #00F0FF;
+      animation: beacon-pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes beacon-pulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 8px #00F0FF; }
+    }
+
+    /* Dynamic Jitter & Counter-Strafe Badge */
+    .jitter-badge {
+      font-size: 7px;
+      font-weight: 800;
+      color: #0A0C10;
+      background: #00F0FF;
+      padding: 1px 6px;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+      transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .jitter-badge.standby {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.45);
+      box-shadow: none;
+    }
+
+    .jitter-badge.burst {
+      background: #FFD700;
+      color: #0A0C10;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.85);
+      transform: scale(1.04);
+    }
+
+    .jitter-badge.hyper {
+      background: #FF0055;
+      color: #FFFFFF;
+      box-shadow: 0 0 14px rgba(255, 0, 85, 0.95);
+      transform: scale(1.06);
+    }
+
+    /* Beloved 4-Segment Momentum Meter */
+    .momentum-meter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .meter-label {
+      font-size: 7px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.45);
+      text-transform: uppercase;
+    }
+
+    .meter-bars {
+      display: flex;
+      align-items: center;
+      gap: 2.5px;
+    }
+
+    .meter-seg {
+      width: 7px;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 1px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.08s ease;
+    }
+
+    .meter-seg.lit-1 {
+      background: #00F0FF;
+      border-color: #00F0FF;
+      box-shadow: 0 0 6px rgba(0, 240, 255, 0.8);
+    }
+
+    .meter-seg.lit-2 {
+      background: #00FFE0;
+      border-color: #00FFE0;
+      box-shadow: 0 0 7px rgba(0, 255, 224, 0.85);
+    }
+
+    .meter-seg.lit-3 {
+      background: #FFD700;
+      border-color: #FFD700;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.9);
+    }
+
+    .meter-seg.lit-4 {
+      background: #FF0055;
+      border-color: #FF0055;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 1);
+    }
+
+    /* Main HUD Body */
+    .hud-body {
+      height: 103px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    /* LEFT POD: Universal FPS Action Grid */
+    .keyboard-pod {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .key-row {
+      display: flex;
+      align-items: center;
+      gap: 3.5px;
+      height: 31px;
+    }
+
+    /* High-Precision Keycaps */
+    .k-cap {
+      height: 100%;
+      background: rgba(14, 18, 26, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.04em;
+      position: relative;
+      transition: background 0.03s ease, border-color 0.03s ease, color 0.03s ease, transform 0.03s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .k-sub {
+      font-size: 5.5px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-top: 1px;
+    }
+
+    /* Key Sizes */
+    .k-w { width: 33px; }
+    .k-wasd { width: 33px; font-size: 11px; }
+    .k-gadget { width: 44px; }
+    .k-interact { width: 44px; }
+    .k-reload { width: 44px; }
+    .k-wpn { width: 22px; font-size: 9.5px; }
+    .k-shift { width: 52px; }
+    .k-melee { width: 40px; }
+    .k-ctrl { width: 40px; }
+    .k-slide { width: 42px; }
+    .k-jump { flex: 1; font-size: 10px; }
+    .k-nade { width: 38px; }
+
+    /* Cap-Strafe Special Brackets */
+    .cap-strafe-l {
+      position: relative;
+      border-left: 2px solid rgba(0, 240, 255, 0.6);
+    }
+    .cap-strafe-r {
+      position: relative;
+      border-right: 2px solid rgba(0, 240, 255, 0.6);
+    }
+
+    /* Active / Glowing States */
+    .k-cap.active {
+      background: #00F0FF !important;
+      border-color: #00F0FF !important;
+      color: #0A0C10 !important;
+      transform: translateY(1px);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.8), inset 0 0 4px rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .k-cap.active .k-sub {
+      color: rgba(10, 12, 16, 0.85) !important;
+      font-weight: 900;
+    }
+
+    /* Counter-Strafe Chain Glow */
+    .k-cap.strafe-hot {
+      background: #00FFCC !important;
+      border-color: #00FFCC !important;
+      color: #0A0C10 !important;
+      box-shadow: 0 0 14px rgba(0, 255, 204, 0.9) !important;
+    }
+
+    /* Release Trail */
+    .k-cap.trail {
+      border-color: rgba(0, 240, 255, 0.4);
+      background: rgba(0, 240, 255, 0.12);
+    }
+
+    /* Divider */
+    .hud-divider {
+      width: 1px;
+      height: 98px;
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 240, 255, 0.25) 30%, rgba(0, 240, 255, 0.25) 70%, transparent 100%);
+    }
+
+    /* RIGHT POD: Jitter Strafe Visualizer & Esports Mouse */
+    .mouse-pod {
+      width: 114px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 3px;
+    }
+
+    /* Live AD Jitter Oscillation Engine */
+    .jitter-engine-box {
+      width: 100%;
+      height: 29px;
+      background: rgba(14, 18, 26, 0.78);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 3px;
+      padding: 2px 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .jitter-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 6px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .jitter-hz-val {
+      color: #00F0FF;
+      font-size: 7.5px;
+      font-weight: 900;
+    }
+
+    .oscillation-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 2px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .center-notch {
+      width: 1px;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .oscillation-needle {
+      position: absolute;
+      width: 16px;
+      height: 6px;
+      border-radius: 1px;
+      background: #00F0FF;
+      box-shadow: 0 0 8px #00F0FF;
+      left: calc(50% - 8px);
+      transition: transform 0.05s ease-out, background 0.1s ease;
+    }
+
+    .osc-lbl-l, .osc-lbl-r {
+      font-size: 6px;
+      font-weight: 800;
+      position: absolute;
+      top: 1px;
+      color: rgba(255, 255, 255, 0.35);
+      transition: color 0.05s ease;
+    }
+    .osc-lbl-l { left: 3px; }
+    .osc-lbl-r { right: 3px; }
+
+    .osc-lbl-l.hot, .osc-lbl-r.hot {
+      color: #00F0FF;
+      text-shadow: 0 0 5px #00F0FF;
+    }
+
+    /* Mouse Section (Clicks + Side Keys + Wheel) */
+    .mouse-cluster {
+      width: 100%;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    /* Left: Wheel & Side Buttons Column */
+    .mouse-aux-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      width: 32px;
+    }
+
+    .aux-btn {
+      height: 19px;
+      background: rgba(14, 18, 26, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 7.5px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.04s ease;
+    }
+
+    .aux-btn .aux-sub {
+      font-size: 5px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.04em;
+    }
+
+    .aux-btn.active {
+      background: #00F0FF !important;
+      border-color: #00F0FF !important;
+      color: #0A0C10 !important;
+      box-shadow: 0 0 8px #00F0FF;
+    }
+
+    .aux-btn.active .aux-sub {
+      color: rgba(10, 12, 16, 0.85) !important;
+    }
+
+    /* Mouse Silhouette Engine */
+    .mouse-chassis {
+      flex: 1;
+      height: 100%;
+      background: rgba(12, 15, 22, 0.75);
+      border: 1px solid rgba(0, 240, 255, 0.22);
+      border-radius: 12px 12px 6px 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+
+    .mouse-clickers {
+      height: 38px;
+      width: 100%;
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .m-click-half {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 3px;
+      font-size: 7.5px;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.6);
+      transition: all 0.03s ease;
+      cursor: default;
+    }
+
+    .m-click-half.left {
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 11px 0 0 0;
+    }
+
+    .m-click-half.right {
+      border-radius: 0 11px 0 0;
+    }
+
+    .m-click-half.active {
+      background: #00F0FF !important;
+      color: #0A0C10 !important;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.9), 0 0 12px #00F0FF;
+    }
+
+    .m-wheel-well {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 18px;
+      background: #06080B;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1px 0;
+      z-index: 5;
+    }
+
+    .wheel-nub {
+      width: 6px;
+      height: 6px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.06s ease;
+    }
+
+    .wheel-nub.active-up {
+      background: #00F0FF;
+      box-shadow: 0 0 6px #00F0FF;
+      transform: translateY(-2px);
+    }
+
+    .wheel-nub.active-down {
+      background: #FFD700;
+      box-shadow: 0 0 6px #FFD700;
+      transform: translateY(2px);
+    }
+
+    /* Mouse Palm / Base */
+    .mouse-palm {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6px;
+    }
+
+    .palm-cps {
+      font-size: 6px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.06em;
+    }
+
+    .palm-cps span {
+      color: #00F0FF;
+      font-weight: 900;
+    }
+
+    .palm-logo {
+      width: 10px;
+      height: 10px;
+      opacity: 0.35;
+      filter: drop-shadow(0 0 2px #00F0FF);
+    }
+  </style>
+</head>
+<body>
+  <div class="hud-console">
+    <!-- Header: Logo, Identity, Live Jitter Metric & Momentum Meter -->
+    <div class="hud-header">
+      <div class="hud-tag">
+        <img class="brand-logo" src="assets/captain_solo_logo.png" alt="Solo Logo">
+        <span>CAPTAIN SOLO</span>
+        <span class="hud-beacon"></span>
+      </div>
+      <div id="jitterBadge" class="jitter-badge standby">JITTER: 0.0 HZ</div>
+      <div class="momentum-meter">
+        <span class="meter-label">MOMENTUM</span>
+        <div class="meter-bars">
+          <div class="meter-seg" id="seg1"></div>
+          <div class="meter-seg" id="seg2"></div>
+          <div class="meter-seg" id="seg3"></div>
+          <div class="meter-seg" id="seg4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main HUD Cluster -->
+    <div class="hud-body">
+      <!-- LEFT POD: Universal Combat & Movement Grid -->
+      <div class="keyboard-pod">
+        <!-- Row 1: Tactical Gadget [Q], Forward [W], Use/Interact [E], Reload [R], Weapon [1/2] -->
+        <div class="key-row">
+          <div id="key-q" class="k-cap k-gadget" title="Q: Gadget / Special Ability">
+            <span>Q</span>
+            <span class="k-sub">GADGET</span>
+          </div>
+          <div id="key-w" class="k-cap k-w">W</div>
+          <div id="key-e" class="k-cap k-interact" title="E: Interact / Use / Gadget 2">
+            <span>E</span>
+            <span class="k-sub">USE</span>
+          </div>
+          <div id="key-r" class="k-cap k-reload" title="R: Reload">
+            <span>R</span>
+            <span class="k-sub">RELOAD</span>
+          </div>
+          <div id="key-1" class="k-cap k-wpn" title="1: Primary Weapon">1</div>
+          <div id="key-2" class="k-cap k-wpn" title="2: Secondary Weapon">2</div>
+        </div>
+
+        <!-- Row 2: Sprint [Shift], Strafe Left [A], Backward [S], Strafe Right [D], Melee [F] -->
+        <div class="key-row">
+          <div id="key-shift" class="k-cap k-shift" title="Shift: Sprint / Dash / Zoom">
+            <span>SHIFT</span>
+            <span class="k-sub">SPRINT</span>
+          </div>
+          <div id="key-a" class="k-cap k-wasd cap-strafe-l" title="A: Strafe Left">A</div>
+          <div id="key-s" class="k-cap k-wasd" title="S: Backward">S</div>
+          <div id="key-d" class="k-cap k-wasd cap-strafe-r" title="D: Strafe Right">D</div>
+          <div id="key-f" class="k-cap k-melee" title="F: Melee / Quick Strike">
+            <span>F</span>
+            <span class="k-sub">MELEE</span>
+          </div>
+        </div>
+
+        <!-- Row 3: Crouch [Ctrl], Slide [C], Jump [Space], Grenade [G] -->
+        <div class="key-row">
+          <div id="key-ctrl" class="k-cap k-ctrl" title="Ctrl: Crouch / Prone">
+            <span>CTRL</span>
+            <span class="k-sub">CRCH</span>
+          </div>
+          <div id="key-c" class="k-cap k-slide" title="C: Slide / Mantle">
+            <span>C</span>
+            <span class="k-sub">SLIDE</span>
+          </div>
+          <div id="key-space" class="k-cap k-jump" title="Space: Jump / Mantle / Vault">
+            <span>SPACE</span>
+            <span class="k-sub">JUMP</span>
+          </div>
+          <div id="key-g" class="k-cap k-nade" title="G: Grenade / Ordnance">
+            <span>G</span>
+            <span class="k-sub">NADE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="hud-divider"></div>
+
+      <!-- RIGHT POD: Jitter Strafe Cadence & Esports Mouse -->
+      <div class="mouse-pod">
+        <!-- Live AD Jitter Oscillation Gauge -->
+        <div class="jitter-engine-box">
+          <div class="jitter-top-row">
+            <span>STRAFE CADENCE</span>
+            <span id="hzReadout" class="jitter-hz-val">0.0 HZ</span>
+          </div>
+          <div class="oscillation-track">
+            <span id="oscLeftLbl" class="osc-lbl-l">◀ A</span>
+            <div class="center-notch"></div>
+            <div id="oscNeedle" class="oscillation-needle"></div>
+            <span id="oscRightLbl" class="osc-lbl-r">D ▶</span>
+          </div>
+        </div>
+
+        <!-- Mouse Cluster: Auxiliary Column + Contoured Chassis -->
+        <div class="mouse-cluster">
+          <!-- Auxiliary Side Buttons & Wheel Controls -->
+          <div class="mouse-aux-col">
+            <div id="side-mb5" class="aux-btn" title="MB5: Special / Gadget / Heal">
+              <span>MB5</span>
+              <span class="aux-sub">SPEC</span>
+            </div>
+            <div id="side-mb4" class="aux-btn" title="MB4: Melee / Gadget / PTT">
+              <span>MB4</span>
+              <span class="aux-sub">TAC</span>
+            </div>
+            <div id="btn-melee-v" class="aux-btn" title="V: Melee Strike">
+              <span>V</span>
+              <span class="aux-sub">HIT</span>
+            </div>
+          </div>
+
+          <!-- Mouse Chassis with High-Frequency Triggers -->
+          <div class="mouse-chassis" id="mouseChassis">
+            <div class="mouse-clickers">
+              <div id="mouse-lmb" class="m-click-half left" title="Left Click: Primary Fire">LMB</div>
+              <div class="m-wheel-well">
+                <div id="wheelPip" class="wheel-nub"></div>
+              </div>
+              <div id="mouse-rmb" class="m-click-half right" title="Right Click: ADS / Aim">RMB</div>
+            </div>
+            <div class="mouse-palm">
+              <div class="palm-cps"><span id="cpsVal">0</span> CPS</div>
+              <img class="palm-logo" src="assets/captain_solo_logo.png" alt="Solo">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Key Elements Map
+    const elements = {
+      'W': document.getElementById('key-w'),
+      'A': document.getElementById('key-a'),
+      'S': document.getElementById('key-s'),
+      'D': document.getElementById('key-d'),
+      'Q': document.getElementById('key-q'),
+      'E': document.getElementById('key-e'),
+      'R': document.getElementById('key-r'),
+      'F': document.getElementById('key-f'),
+      'G': document.getElementById('key-g'),
+      'V': document.getElementById('btn-melee-v'),
+      'C': document.getElementById('key-c'),
+      'CTRL': document.getElementById('key-ctrl'),
+      'SPACE': document.getElementById('key-space'),
+      'SHIFT': document.getElementById('key-shift'),
+      '1': document.getElementById('key-1'),
+      '2': document.getElementById('key-2'),
+      'MB4': document.getElementById('side-mb4'),
+      'MB5': document.getElementById('side-mb5'),
+      'LMB': document.getElementById('mouse-lmb'),
+      'RMB': document.getElementById('mouse-rmb'),
+      'WHEEL_PIP': document.getElementById('wheelPip')
+    };
+
+    // HUD Dynamic Widgets
+    const jitterBadge = document.getElementById('jitterBadge');
+    const hzReadout = document.getElementById('hzReadout');
+    const oscNeedle = document.getElementById('oscNeedle');
+    const oscLeftLbl = document.getElementById('oscLeftLbl');
+    const oscRightLbl = document.getElementById('oscRightLbl');
+    const cpsVal = document.getElementById('cpsVal');
+    const mouseChassis = document.getElementById('mouseChassis');
+
+    const segs = [
+      document.getElementById('seg1'),
+      document.getElementById('seg2'),
+      document.getElementById('seg3'),
+      document.getElementById('seg4')
+    ];
+
+    // High-Precision Telemetry Variables
+    const inputHistory = [];
+    const lmbTimestamps = [];
+    const trailTimers = {};
+    let wheelTimer = null;
+
+    // AD Jitter Tracker Engine
+    let lastA = 0;
+    let lastD = 0;
+    let lastStrafeKey = null;
+    let currentStrafeHz = 0;
+    let strafeDecayTimer = null;
+    let badgeResetTimer = null;
+
+    function recordInputEvent() {
+      const now = performance.now();
+      inputHistory.push(now);
+
+      while (inputHistory.length > 0 && now - inputHistory[0] > 1100) {
+        inputHistory.shift();
+      }
+
+      const count = inputHistory.length;
+      segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
+      segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
+      segs[2].className = count >= 8 ? 'meter-seg lit-3' : 'meter-seg';
+      segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
+    }
+
+    // Rolling momentum decay
+    setInterval(() => {
+      const now = performance.now();
+      while (inputHistory.length > 0 && now - inputHistory[0] > 1100) {
+        inputHistory.shift();
+      }
+      const count = inputHistory.length;
+      segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
+      segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
+      segs[2].className = count >= 8 ? 'meter-seg lit-3' : 'meter-seg';
+      segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
+
+      // Update CPS
+      while (lmbTimestamps.length > 0 && now - lmbTimestamps[0] > 1000) {
+        lmbTimestamps.shift();
+      }
+      cpsVal.textContent = lmbTimestamps.length;
+
+      // Smooth decay for Strafe Hz if idle
+      if (now - Math.max(lastA, lastD) > 420) {
+        currentStrafeHz = Math.max(0, currentStrafeHz * 0.7);
+        if (currentStrafeHz < 0.2) {
+          currentStrafeHz = 0;
+          oscNeedle.style.transform = 'translateX(0px)';
+          oscNeedle.style.background = '#00F0FF';
+          oscNeedle.style.boxShadow = '0 0 8px #00F0FF';
+          oscLeftLbl.classList.remove('hot');
+          oscRightLbl.classList.remove('hot');
+          hzReadout.textContent = '0.0 HZ';
+          jitterBadge.className = 'jitter-badge standby';
+          jitterBadge.textContent = 'JITTER: 0.0 HZ';
+        } else {
+          hzReadout.textContent = currentStrafeHz.toFixed(1) + ' HZ';
+        }
+      }
+    }, 120);
+
+    // AD Counter-Strafe / Jitter Detection Logic
+    function handleStrafeChange(key, active) {
+      const now = performance.now();
+      if (!active) return;
+
+      if (key === 'A') {
+        lastA = now;
+        oscLeftLbl.classList.add('hot');
+        oscRightLbl.classList.remove('hot');
+        oscNeedle.style.transform = 'translateX(-32px)';
+
+        if (lastStrafeKey === 'D') {
+          const delta = now - lastD;
+          if (delta > 30 && delta < 480) {
+            currentStrafeHz = 1000 / (delta * 2);
+            updateJitterDisplay(currentStrafeHz);
+          }
+        }
+        lastStrafeKey = 'A';
+      } else if (key === 'D') {
+        lastD = now;
+        oscRightLbl.classList.add('hot');
+        oscLeftLbl.classList.remove('hot');
+        oscNeedle.style.transform = 'translateX(32px)';
+
+        if (lastStrafeKey === 'A') {
+          const delta = now - lastA;
+          if (delta > 30 && delta < 480) {
+            currentStrafeHz = 1000 / (delta * 2);
+            updateJitterDisplay(currentStrafeHz);
+          }
+        }
+        lastStrafeKey = 'D';
+      }
+    }
+
+    function updateJitterDisplay(hz) {
+      const formatted = hz.toFixed(1);
+      hzReadout.textContent = formatted + ' HZ';
+
+      if (hz >= 10.0) {
+        // Hyper Jitter Speed
+        jitterBadge.className = 'jitter-badge hyper';
+        jitterBadge.textContent = '⚡ HYPER JITTER ' + formatted + ' HZ';
+        oscNeedle.style.background = '#FF0055';
+        oscNeedle.style.boxShadow = '0 0 12px #FF0055';
+        if (elements['A']) elements['A'].classList.add('strafe-hot');
+        if (elements['D']) elements['D'].classList.add('strafe-hot');
+      } else if (hz >= 6.0) {
+        // High Speed Counter-Strafe Burst
+        jitterBadge.className = 'jitter-badge burst';
+        jitterBadge.textContent = '✦ AD BURST ' + formatted + ' HZ';
+        oscNeedle.style.background = '#FFD700';
+        oscNeedle.style.boxShadow = '0 0 10px #FFD700';
+        if (elements['A']) elements['A'].classList.add('strafe-hot');
+        if (elements['D']) elements['D'].classList.add('strafe-hot');
+      } else {
+        // Fluid Cadence
+        jitterBadge.className = 'jitter-badge';
+        jitterBadge.textContent = 'AD JITTER ' + formatted + ' HZ';
+        oscNeedle.style.background = '#00F0FF';
+        oscNeedle.style.boxShadow = '0 0 8px #00F0FF';
+      }
+    }
+
+    // Set Key State
+    function setKey(name, active) {
+      recordInputEvent();
+
+      // Normalize key aliases
+      let key = name;
+      if (name === 'INTERACT') key = 'E';
+      else if (name === 'STIM') key = 'Q';
+      else if (name === 'CROUCH') key = 'C';
+      else if (name === 'JUMP') key = 'SPACE';
+      else if (name === 'SPRINT') key = 'SHIFT';
+
+      if (key === 'A' || key === 'D') {
+        handleStrafeChange(key, active);
+      }
+
+      if (key === 'LMB' && active) {
+        lmbTimestamps.push(performance.now());
+        cpsVal.textContent = lmbTimestamps.length;
+      }
+
+      const el = elements[key];
+      if (!el) return;
+
+      if (active) {
+        clearTimeout(trailTimers[key]);
+        el.classList.remove('trail');
+        el.classList.add('active');
+
+        if (key === 'LMB' || key === 'RMB') {
+          mouseChassis.style.borderColor = '#00F0FF';
+          mouseChassis.style.boxShadow = '0 0 10px rgba(0, 240, 255, 0.4)';
+        }
+      } else {
+        el.classList.remove('active', 'strafe-hot');
+        el.classList.add('trail');
+
+        trailTimers[key] = setTimeout(() => {
+          el.classList.remove('trail');
+        }, 180);
+
+        if (key === 'LMB' || key === 'RMB') {
+          if (!elements['LMB'].classList.contains('active') && !elements['RMB'].classList.contains('active')) {
+            mouseChassis.style.borderColor = 'rgba(0, 240, 255, 0.22)';
+            mouseChassis.style.boxShadow = 'none';
+          }
+        }
+      }
+    }
+
+    function triggerWheel(direction) {
+      recordInputEvent();
+      const pip = elements['WHEEL_PIP'];
+      if (!pip) return;
+
+      clearTimeout(wheelTimer);
+      if (direction === 'up') {
+        pip.className = 'wheel-nub active-up';
+      } else {
+        pip.className = 'wheel-nub active-down';
+      }
+
+      wheelTimer = setTimeout(() => {
+        pip.className = 'wheel-nub';
+      }, 90);
+    }
+
+    // WebSocket Connection to Input Daemon
+    function connectWS() {
+      const ws = new WebSocket('ws://127.0.0.1:8998/ws');
+
+      ws.onmessage = (event) => {
+        try {
+          const data = jsonParse(event.data);
+          if (data.type === 'key') {
+            setKey(data.name, data.down);
+          } else if (data.type === 'wheel') {
+            triggerWheel(data.dir);
+          }
+        } catch (e) {}
+      };
+
+      ws.onclose = () => {
+        setTimeout(connectWS, 1200);
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
+    }
+
+    function jsonParse(str) {
+      try { return JSON.parse(str); } catch (e) { return {}; }
+    }
+
+    connectWS();
+
+    // Local In-Browser Event Listeners (For Browser Preview / Testing)
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toUpperCase();
+      if (['W', 'A', 'S', 'D', 'Q', 'E', 'R', 'F', 'G', 'V', 'C', '1', '2'].includes(k)) {
+        setKey(k, true);
+      } else if (e.code === 'Space') {
+        setKey('SPACE', true);
+      } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        setKey('SHIFT', true);
+      } else if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+        setKey('CTRL', true);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toUpperCase();
+      if (['W', 'A', 'S', 'D', 'Q', 'E', 'R', 'F', 'G', 'V', 'C', '1', '2'].includes(k)) {
+        setKey(k, false);
+      } else if (e.code === 'Space') {
+        setKey('SPACE', false);
+      } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        setKey('SHIFT', false);
+      } else if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+        setKey('CTRL', false);
+      }
+    });
+
+    window.addEventListener('mousedown', (e) => {
+      if (e.button === 0) setKey('LMB', true);
+      if (e.button === 2) setKey('RMB', true);
+      if (e.button === 3) setKey('MB4', true);
+      if (e.button === 4) setKey('MB5', true);
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 0) setKey('LMB', false);
+      if (e.button === 2) setKey('RMB', false);
+      if (e.button === 3) setKey('MB4', false);
+      if (e.button === 4) setKey('MB5', false);
+    });
+
+    window.addEventListener('wheel', (e) => {
+      if (e.deltaY < 0) triggerWheel('up');
+      else if (e.deltaY > 0) triggerWheel('down');
+    });
+
+    window.addEventListener('contextmenu', (e) => e.preventDefault());
+  </script>
+</body>
+</html>
