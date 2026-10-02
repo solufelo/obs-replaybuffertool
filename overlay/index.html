@@ -28,18 +28,40 @@
     .telemetry-card {
       width: 356px;
       height: 126px;
-      background: rgba(9, 11, 15, 0.82);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(9, 11, 15, 0.85);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 7px;
       box-shadow: 
-        0 14px 36px rgba(0, 0, 0, 0.7),
+        0 14px 36px rgba(0, 0, 0, 0.75),
         inset 0 0 0 1px rgba(255, 255, 255, 0.03);
       padding: 7px 10px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      position: relative;
+      transition: 
+        border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.3s ease;
+    }
+
+    /* Ambient Kinetic Aura during High-APM Movement (Neo-Strafes / Ras-Strafes) */
+    .telemetry-card.velocity-boost {
+      border-color: rgba(255, 255, 255, 0.34);
+      box-shadow: 
+        0 16px 44px rgba(0, 0, 0, 0.85),
+        0 0 28px rgba(255, 255, 255, 0.22),
+        inset 0 0 18px rgba(255, 255, 255, 0.07);
+    }
+
+    .telemetry-card.velocity-max {
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 
+        0 18px 48px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(255, 255, 255, 0.4),
+        inset 0 0 24px rgba(255, 255, 255, 0.12);
     }
 
     /* Micro Header Bar */
@@ -69,13 +91,65 @@
       background: #FFFFFF;
       border-radius: 50%;
       opacity: 0.8;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .telemetry-card.velocity-boost .status-dot {
+      box-shadow: 0 0 8px #FFFFFF;
+      transform: scale(1.2);
+      opacity: 1;
+    }
+
+    /* Movement Combo Badge (Superglide, Tap-Strafe Streak) */
+    .combo-badge {
+      display: none;
+      font-size: 7.5px;
+      font-weight: 800;
+      color: #0A0C10;
+      background: #FFFFFF;
+      padding: 1px 5px;
+      border-radius: 2px;
+      letter-spacing: 0.12em;
+      animation: popIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    .combo-badge.active {
+      display: inline-block;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .metrics-cluster {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .apm-gauge {
+      font-size: 8px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.12em;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    .telemetry-card.velocity-boost .apm-gauge {
+      color: #FFFFFF;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
     }
 
     .rate-badge {
       font-size: 8px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.3);
-      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.28);
+      letter-spacing: 0.1em;
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      padding-left: 6px;
     }
 
     /* Key Rows */
@@ -86,8 +160,9 @@
       height: 29px;
     }
 
-    /* Base Keycap Styling */
+    /* Base Keycap Styling with Kinetic Phosphor Decay */
     .key {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -100,17 +175,53 @@
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.05em;
-      transition: background 0.02s ease, color 0.02s ease, border-color 0.02s ease, box-shadow 0.02s ease;
+      transform: scale(1);
+      /* Kinetic Phosphor Trail Decay on Release */
+      transition: 
+        background 0.24s cubic-bezier(0.12, 0.9, 0.2, 1),
+        border-color 0.24s cubic-bezier(0.12, 0.9, 0.2, 1),
+        box-shadow 0.26s cubic-bezier(0.12, 0.9, 0.2, 1),
+        color 0.14s ease,
+        transform 0.16s cubic-bezier(0.12, 0.9, 0.2, 1);
       cursor: default;
+      overflow: hidden;
     }
 
-    /* Instantaneous Crisp Inverted Activation */
+    /* 0ms Instantaneous Peak Strike */
     .key.active {
       background: #FFFFFF !important;
       color: #0A0C10 !important;
       border-color: #FFFFFF !important;
       font-weight: 800 !important;
-      box-shadow: 0 0 14px rgba(255, 255, 255, 0.6) !important;
+      transform: scale(1.05);
+      box-shadow: 
+        0 0 18px rgba(255, 255, 255, 1),
+        0 0 34px rgba(255, 255, 255, 0.45),
+        inset 0 0 6px rgba(255, 255, 255, 0.9) !important;
+      transition: none !important; /* Zero lag on press */
+      z-index: 2;
+    }
+
+    /* Luminescent Phosphor Trail (Traces neo-strafe circles A -> S -> D -> W) */
+    .key.trail {
+      background: rgba(255, 255, 255, 0.32);
+      border-color: rgba(255, 255, 255, 0.55);
+      color: #FFFFFF;
+      box-shadow: 
+        0 0 14px rgba(255, 255, 255, 0.45),
+        inset 0 0 6px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Superglide Synchronized Kinetic Surge */
+    .key.superglide {
+      background: #FFFFFF !important;
+      color: #0A0C10 !important;
+      border-color: #FFFFFF !important;
+      transform: scale(1.08) !important;
+      box-shadow: 
+        0 0 26px rgba(255, 255, 255, 1),
+        0 0 48px rgba(255, 255, 255, 0.75) !important;
+      z-index: 3;
     }
 
     /* Key Proportions */
@@ -132,8 +243,14 @@
       letter-spacing: 0.08em;
     }
     .key.active .tactical-sub {
-      opacity: 0.8;
+      opacity: 0.9;
       color: #0A0C10;
+    }
+    .tactical-key.active {
+      transform: scale(1.07);
+      box-shadow: 
+        0 0 22px rgba(255, 255, 255, 1),
+        0 0 40px rgba(255, 255, 255, 0.6) !important;
     }
 
     .interact-key {
@@ -166,7 +283,7 @@
       letter-spacing: 0.16em;
     }
 
-    /* Scroll Wheel Indicator */
+    /* Scroll Wheel Indicator with Tap-Strafe Streak Multiplier */
     .wheel-pip {
       width: 22px;
       height: 28px;
@@ -179,13 +296,25 @@
       justify-content: center;
       background: rgba(255, 255, 255, 0.03);
       transition: all 0.03s ease;
+      cursor: default;
     }
     .wheel-pip.active {
       background: #FFFFFF !important;
       color: #0A0C10 !important;
       border-color: #FFFFFF !important;
       font-weight: 900 !important;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.8) !important;
+    }
+    /* Rapid Tap-Strafe Kinetic Surge */
+    .wheel-pip.surging {
+      background: #FFFFFF !important;
+      color: #0A0C10 !important;
+      border-color: #FFFFFF !important;
+      transform: scale(1.14) !important;
+      box-shadow: 
+        0 0 24px rgba(255, 255, 255, 1),
+        0 0 45px rgba(255, 255, 255, 0.7) !important;
+      z-index: 2;
     }
 
     /* Mouse Visualizer */
@@ -207,6 +336,12 @@
       flex-direction: column;
       overflow: hidden;
       background: rgba(255, 255, 255, 0.02);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .mouse-shell.firing {
+      border-color: #FFFFFF;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
     }
 
     .mouse-split {
@@ -226,7 +361,7 @@
     }
     .mouse-btn.active {
       background: #FFFFFF !important;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 1);
     }
 
     .mouse-wheel-track {
@@ -242,25 +377,29 @@
     }
     .mouse-wheel-track.up {
       background: #FFFFFF !important;
-      transform: translateX(-50%) translateY(-2px);
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+      transform: translateX(-50%) translateY(-2.5px);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 1);
     }
     .mouse-wheel-track.down {
       background: #FFFFFF !important;
-      transform: translateX(-50%) translateY(2px);
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
+      transform: translateX(-50%) translateY(2.5px);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 1);
     }
   </style>
 </head>
 <body>
-  <div class="telemetry-card">
-    <!-- Top Telemetry Micro Header -->
+  <div class="telemetry-card" id="telemetryCard">
+    <!-- Top Telemetry Micro Header with Dynamic APM & Combo Badge -->
     <div class="telemetry-header">
       <div class="telemetry-title">
         <div class="status-dot"></div>
         <span>TELEMETRY // INPUT</span>
+        <span id="comboBadge" class="combo-badge">GLIDE</span>
       </div>
-      <div class="rate-badge">120HZ LOW-LATENCY</div>
+      <div class="metrics-cluster">
+        <div class="apm-gauge" id="apmDisplay">0 APM</div>
+        <div class="rate-badge">120HZ</div>
+      </div>
     </div>
 
     <!-- Row 1: Tactical [P / Alt], W, Interact [E], Wheel Up, Mouse -->
@@ -275,7 +414,7 @@
 
       <!-- Mouse Split Telemetry -->
       <div class="mouse-cluster">
-        <div class="mouse-shell">
+        <div class="mouse-shell" id="mouseShell">
           <div class="mouse-split">
             <div id="mouse-lmb" class="mouse-btn left"></div>
             <div id="mouse-rmb" class="mouse-btn right"></div>
@@ -321,31 +460,149 @@
       'MOUSE_WHEEL': document.getElementById('mouse-wheel')
     };
 
+    const telemetryCard = document.getElementById('telemetryCard');
+    const apmDisplay = document.getElementById('apmDisplay');
+    const comboBadge = document.getElementById('comboBadge');
+    const mouseShell = document.getElementById('mouseShell');
+
     let wheelUpTimer = null;
     let wheelDownTimer = null;
+    let wheelUpTicks = 0;
+    let wheelTickResetTimer = null;
+
+    // Movement History & APM Tracking
+    const inputHistory = [];
+    let lastJumpTime = 0;
+    let lastCrouchTime = 0;
+    let comboTimer = null;
+    const trailTimers = {};
+
+    function recordInputEvent() {
+      const now = performance.now();
+      inputHistory.push(now);
+
+      // Prune events older than 1.2 seconds
+      while (inputHistory.length > 0 && now - inputHistory[0] > 1200) {
+        inputHistory.shift();
+      }
+
+      // Calculate instantaneous APM: (events / 1.2) * 60
+      const currentAPM = Math.min(999, Math.round((inputHistory.length / 1.2) * 60));
+      apmDisplay.textContent = `${currentAPM} APM`;
+
+      // Dynamic Ambient Console Aura based on movement intensity
+      if (currentAPM >= 220) {
+        telemetryCard.classList.add('velocity-max');
+        telemetryCard.classList.remove('velocity-boost');
+      } else if (currentAPM >= 110) {
+        telemetryCard.classList.add('velocity-boost');
+        telemetryCard.classList.remove('velocity-max');
+      } else {
+        telemetryCard.classList.remove('velocity-boost', 'velocity-max');
+      }
+    }
+
+    // Decay APM smoothly when idle
+    setInterval(() => {
+      const now = performance.now();
+      while (inputHistory.length > 0 && now - inputHistory[0] > 1200) {
+        inputHistory.shift();
+      }
+      const currentAPM = Math.round((inputHistory.length / 1.2) * 60);
+      apmDisplay.textContent = `${currentAPM} APM`;
+      if (currentAPM < 110) {
+        telemetryCard.classList.remove('velocity-boost', 'velocity-max');
+      } else if (currentAPM < 220) {
+        telemetryCard.classList.remove('velocity-max');
+      }
+    }, 250);
+
+    function triggerComboBadge(text, duration = 480) {
+      comboBadge.textContent = text;
+      comboBadge.classList.add('active');
+      clearTimeout(comboTimer);
+      comboTimer = setTimeout(() => {
+        comboBadge.classList.remove('active');
+      }, duration);
+    }
 
     function setKey(name, active) {
       const el = elements[name];
-      if (el) {
-        if (active) {
-          el.classList.add('active');
-        } else {
-          el.classList.remove('active');
+      if (!el) return;
+
+      if (active) {
+        recordInputEvent();
+        clearTimeout(trailTimers[name]);
+        el.classList.remove('trail', 'superglide');
+        el.classList.add('active');
+
+        const now = performance.now();
+        if (name === 'JUMP') {
+          lastJumpTime = now;
+          // Superglide Combo: Jump and Crouch struck within 45ms!
+          if (Math.abs(lastJumpTime - lastCrouchTime) < 45) {
+            el.classList.add('superglide');
+            if (elements['CROUCH']) elements['CROUCH'].classList.add('superglide');
+            triggerComboBadge('✦ SUPERGLIDE', 520);
+          }
+        } else if (name === 'CROUCH') {
+          lastCrouchTime = now;
+          if (Math.abs(lastJumpTime - lastCrouchTime) < 45) {
+            el.classList.add('superglide');
+            if (elements['JUMP']) elements['JUMP'].classList.add('superglide');
+            triggerComboBadge('✦ SUPERGLIDE', 520);
+          }
+        }
+
+        if (name === 'LMB' || name === 'RMB') {
+          mouseShell.classList.add('firing');
+        }
+      } else {
+        // Release: Instant un-press + Phosphor Trail Decay
+        el.classList.remove('active');
+        el.classList.add('trail');
+
+        trailTimers[name] = setTimeout(() => {
+          el.classList.remove('trail', 'superglide');
+        }, 210);
+
+        if (name === 'LMB' || name === 'RMB') {
+          if (!elements['LMB'].classList.contains('active') && !elements['RMB'].classList.contains('active')) {
+            mouseShell.classList.remove('firing');
+          }
         }
       }
     }
 
     function triggerWheel(direction) {
+      recordInputEvent();
       const wheel = elements['MOUSE_WHEEL'];
+
       if (direction === 'up') {
         const ind = elements['WHEEL_UP'];
-        ind.classList.add('active');
+        wheelUpTicks++;
+
+        clearTimeout(wheelTickResetTimer);
+        wheelTickResetTimer = setTimeout(() => {
+          wheelUpTicks = 0;
+          ind.classList.remove('surging');
+        }, 150);
+
+        // Tap-strafe rapid scroll velocity multiplier
+        if (wheelUpTicks >= 3) {
+          ind.classList.add('surging');
+          triggerComboBadge('▲ TAP-STRAFE', 340);
+        } else {
+          ind.classList.add('active');
+        }
+
         wheel.className = 'mouse-wheel-track up';
         clearTimeout(wheelUpTimer);
         wheelUpTimer = setTimeout(() => {
           ind.classList.remove('active');
           wheel.className = 'mouse-wheel-track';
         }, 90);
+
       } else if (direction === 'down') {
         const ind = elements['WHEEL_DOWN'];
         ind.classList.add('active');
@@ -384,7 +641,7 @@
 
     connectWS();
 
-    // Local Window Fallback for Debugging / Direct Browser Previews
+    // Local Window Fallback for Direct Browser Testing & Montage Previews
     window.addEventListener('keydown', (e) => {
       const k = e.key.toUpperCase();
       if (k === 'W') setKey('W', true);
