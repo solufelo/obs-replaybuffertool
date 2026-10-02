@@ -27,7 +27,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Floating Esports HUD Container - Fully Transparent, Zero Clunky Box */
+    /* Floating Esports HUD Container - Fully Transparent */
     .hud-console {
       width: 354px;
       height: 122px;
@@ -38,9 +38,9 @@
       position: relative;
     }
 
-    /* Header: Identity, Dynamic Combo Tag, and Beloved Momentum Meter */
+    /* Header: Logo, Identity, Dynamic Combo Tag, and Beloved Momentum Meter */
     .hud-header {
-      height: 14px;
+      height: 15px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -50,12 +50,20 @@
     .hud-tag {
       font-size: 7.5px;
       font-weight: 800;
-      letter-spacing: 0.16em;
-      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.14em;
+      color: rgba(255, 255, 255, 0.6);
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 5px;
+    }
+
+    .brand-logo {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
     }
 
     .hud-beacon {
@@ -92,6 +100,12 @@
       box-shadow: 0 0 12px #00F0FF;
     }
 
+    .combo-badge.gold {
+      background: #FFD700;
+      color: #0A0C10;
+      box-shadow: 0 0 14px rgba(255, 215, 0, 0.9);
+    }
+
     /* Kinetic Momentum Gauge */
     .momentum-meter {
       display: flex;
@@ -102,7 +116,7 @@
     .meter-label {
       font-size: 7px;
       font-weight: 800;
-      color: rgba(255, 255, 255, 0.38);
+      color: rgba(255, 255, 255, 0.4);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
@@ -130,7 +144,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 104px;
+      height: 103px;
       gap: 6px;
     }
 
@@ -140,7 +154,7 @@
       flex-direction: column;
       justify-content: space-between;
       height: 100%;
-      width: 254px;
+      flex: 1;
     }
 
     .key-row {
@@ -199,13 +213,14 @@
       box-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
     }
 
-    /* Superglide Synchronized Surge */
+    /* Superglide Synchronized Surge (Persistent Frame-Lock) */
     .k-cap.superglide {
       background: #00F0FF !important;
       color: #050B14 !important;
       border-color: #FFFFFF !important;
-      box-shadow: 0 0 22px rgba(0, 240, 255, 1), 0 0 36px rgba(255, 255, 255, 0.8) !important;
-      z-index: 3;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9) !important;
+      z-index: 4;
+      transition: none !important;
     }
 
     /* Directional Strafe Kinematics */
@@ -222,7 +237,7 @@
       box-shadow: 0 0 12px rgba(0, 240, 255, 0.8) !important;
     }
 
-    /* Sizing & Alignment */
+    /* Precise Proportions & Balanced Grid */
     .k-wasd {
       width: 36px;
     }
@@ -234,7 +249,7 @@
       gap: 3px;
     }
     .k-sub {
-      font-size: 7.5px;
+      font-size: 7px;
       font-weight: 700;
       opacity: 0.6;
     }
@@ -248,16 +263,24 @@
       font-size: 11px;
     }
 
-    .k-sprint {
-      width: 48px;
-      font-size: 9.5px;
-      letter-spacing: 0.08em;
+    /* Shift: Dedicated Zoom / Walk Keycap */
+    .k-zoom {
+      width: 52px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .k-zoom .k-sub {
+      font-size: 6.5px;
+      letter-spacing: 0.04em;
     }
 
-    .k-crouch {
-      width: 86px;
-      font-size: 9.5px;
-      letter-spacing: 0.08em;
+    /* Crouch: Slimmed Down, Perfectly Proportioned */
+    .k-crouch-slim {
+      width: 58px;
+      display: flex;
+      flex-direction: row;
+      gap: 3px;
     }
 
     .k-holster {
@@ -449,10 +472,10 @@
 </head>
 <body>
   <div class="hud-console">
-    <!-- Header: Identity, Dynamic Combo Tag, and Beloved Momentum Meter -->
+    <!-- Header: Logo, Identity, Dynamic Combo Tag, and Beloved Momentum Meter -->
     <div class="hud-header">
       <div class="hud-tag">
-        <div class="hud-beacon"></div>
+        <img class="brand-logo" src="assets/captain_solo_logo.png" alt="Solo Logo">
         <span>CAPTAIN SOLO</span>
       </div>
       <div id="comboBadge" class="combo-badge">TAP-STRAFE</div>
@@ -481,13 +504,19 @@
           <div id="key-interact" class="k-cap k-interact">INTERACT</div>
         </div>
 
-        <!-- Row 2: Sprint [Shift], Strafe Left [A], Backward [S], Strafe Right [D], Crouch [C / Ctrl] -->
+        <!-- Row 2: Zoom/Walk [Shift], Strafe Left [A], Backward [S], Strafe Right [D], Crouch [C / Ctrl] -->
         <div class="key-row">
-          <div id="key-sprint" class="k-cap k-sprint">SHIFT</div>
+          <div id="key-sprint" class="k-cap k-zoom" title="Shift: Scope Zoom & Walk">
+            <span>SHIFT</span>
+            <span class="k-sub">ZOOM/WALK</span>
+          </div>
           <div id="key-a" class="k-cap k-wasd cap-strafe-l">A</div>
           <div id="key-s" class="k-cap k-wasd">S</div>
           <div id="key-d" class="k-cap k-wasd cap-strafe-r">D</div>
-          <div id="key-crouch" class="k-cap k-crouch">CROUCH</div>
+          <div id="key-crouch" class="k-cap k-crouch-slim" title="Crouch / Slide (C / Ctrl)">
+            <span>C</span>
+            <span class="k-sub">SLIDE</span>
+          </div>
         </div>
 
         <!-- Row 3: Holster [3 / MB4], Heal [4 / MB5], Ground Jump [Space] -->
@@ -574,6 +603,8 @@
     let lastATime = 0;
     let lastDTime = 0;
     let comboTimer = null;
+    let isSupergliding = false;
+    let superglideLockTimer = null;
     const trailTimers = {};
 
     function recordInputEvent() {
@@ -584,7 +615,6 @@
         inputHistory.shift();
       }
 
-      // Update Kinetic Momentum Gauge Segments
       const count = inputHistory.length;
       segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
       segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
@@ -592,7 +622,6 @@
       segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
     }
 
-    // Decay Momentum smoothly when idle
     setInterval(() => {
       const now = performance.now();
       while (inputHistory.length > 0 && now - inputHistory[0] > 1100) {
@@ -605,18 +634,31 @@
       segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
     }, 180);
 
-    function triggerComboBadge(text, cyan = false, duration = 400) {
+    function triggerComboBadge(text, style = 'cyan', duration = 400) {
       comboBadge.textContent = text;
-      if (cyan) {
-        comboBadge.classList.add('cyan');
-      } else {
-        comboBadge.classList.remove('cyan');
-      }
-      comboBadge.classList.add('active');
+      comboBadge.className = 'combo-badge active ' + style;
       clearTimeout(comboTimer);
       comboTimer = setTimeout(() => {
-        comboBadge.classList.remove('active');
+        comboBadge.className = 'combo-badge';
       }, duration);
+    }
+
+    function triggerSuperglideLock() {
+      isSupergliding = true;
+      if (elements['JUMP']) elements['JUMP'].classList.add('superglide');
+      if (elements['CROUCH']) elements['CROUCH'].classList.add('superglide');
+      triggerComboBadge('✦ SUPERGLIDE', 'cyan', 600);
+
+      clearTimeout(superglideLockTimer);
+      superglideLockTimer = setTimeout(() => {
+        isSupergliding = false;
+        if (elements['JUMP'] && !elements['JUMP'].classList.contains('active')) {
+          elements['JUMP'].classList.remove('superglide');
+        }
+        if (elements['CROUCH'] && !elements['CROUCH'].classList.contains('active')) {
+          elements['CROUCH'].classList.remove('superglide');
+        }
+      }, 380);
     }
 
     function setKey(name, active) {
@@ -640,42 +682,40 @@
 
       if (active) {
         clearTimeout(trailTimers[name]);
-        el.classList.remove('trail', 'superglide');
+        el.classList.remove('trail');
         el.classList.add('active');
 
         const now = performance.now();
 
-        // Flashy Counter-Strafe Dance Detection (A <-> D alternation)
+        // High-Precision Superglide Macro Sync (85ms window + simultaneous check)
+        if (name === 'JUMP') {
+          lastJumpTime = now;
+          const crouchActive = elements['CROUCH'] && elements['CROUCH'].classList.contains('active');
+          if (crouchActive || Math.abs(lastJumpTime - lastCrouchTime) < 85) {
+            triggerSuperglideLock();
+          }
+        } else if (name === 'CROUCH') {
+          lastCrouchTime = now;
+          const jumpActive = elements['JUMP'] && elements['JUMP'].classList.contains('active');
+          if (jumpActive || Math.abs(lastJumpTime - lastCrouchTime) < 85) {
+            triggerSuperglideLock();
+          }
+        }
+
+        // Counter-Strafe Dance Detection (A <-> D alternation)
         if (name === 'A') {
           lastATime = now;
           if (now - lastDTime < 240) {
             elements['A'].classList.add('strafe-chain');
             elements['D'].classList.add('strafe-chain');
-            triggerComboBadge('⚡ STRAFE', true, 300);
+            triggerComboBadge('⚡ STRAFE', 'cyan', 300);
           }
         } else if (name === 'D') {
           lastDTime = now;
           if (now - lastATime < 240) {
             elements['A'].classList.add('strafe-chain');
             elements['D'].classList.add('strafe-chain');
-            triggerComboBadge('⚡ STRAFE', true, 300);
-          }
-        }
-
-        // Superglide Combo: Jump and Crouch struck within 45ms
-        if (name === 'JUMP') {
-          lastJumpTime = now;
-          if (Math.abs(lastJumpTime - lastCrouchTime) < 45) {
-            el.classList.add('superglide');
-            if (elements['CROUCH']) elements['CROUCH'].classList.add('superglide');
-            triggerComboBadge('✦ SUPERGLIDE', true, 500);
-          }
-        } else if (name === 'CROUCH') {
-          lastCrouchTime = now;
-          if (Math.abs(lastJumpTime - lastCrouchTime) < 45) {
-            el.classList.add('superglide');
-            if (elements['JUMP']) elements['JUMP'].classList.add('superglide');
-            triggerComboBadge('✦ SUPERGLIDE', true, 500);
+            triggerComboBadge('⚡ STRAFE', 'cyan', 300);
           }
         }
 
@@ -683,12 +723,18 @@
           mouseShell.classList.add('firing');
         }
       } else {
-        // Release: Instant un-press + Phosphor Trail Decay
+        // Release: Instant un-press
         el.classList.remove('active', 'strafe-chain');
+        if (!isSupergliding) {
+          el.classList.remove('superglide');
+        }
         el.classList.add('trail');
 
         trailTimers[name] = setTimeout(() => {
-          el.classList.remove('trail', 'superglide');
+          el.classList.remove('trail');
+          if (!isSupergliding) {
+            el.classList.remove('superglide');
+          }
         }, 200);
 
         if (name === 'LMB' || name === 'RMB') {
@@ -707,7 +753,7 @@
         // UP = TAP-STRAFE
         const ind = elements['WHEEL_UP'];
         ind.classList.add('active');
-        triggerComboBadge('▲ TAP-STRAFE', true, 320);
+        triggerComboBadge('▲ TAP-STRAFE', 'cyan', 320);
 
         wheel.className = 'm-wheel-track up';
         clearTimeout(wheelUpTimer);
@@ -720,7 +766,7 @@
         // DOWN = JUMP / BHOP
         const ind = elements['WHEEL_DOWN'];
         ind.classList.add('active');
-        triggerComboBadge('▼ JUMP', false, 320);
+        triggerComboBadge('▼ JUMP', 'gold', 320);
 
         wheel.className = 'm-wheel-track down';
         clearTimeout(wheelDownTimer);

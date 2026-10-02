@@ -13,6 +13,12 @@ from aiohttp import web
 WH_MOUSE_LL = 14
 WM_MOUSEWHEEL = 0x020A
 WM_MOUSEMOVE = 0x0200
+WM_LBUTTONDOWN = 0x0201
+WM_LBUTTONUP = 0x0202
+WM_RBUTTONDOWN = 0x0204
+WM_RBUTTONUP = 0x0205
+WM_XBUTTONDOWN = 0x020B
+WM_XBUTTONUP = 0x020C
 HC_ACTION = 0
 
 user32 = ctypes.windll.user32
@@ -72,7 +78,7 @@ def broadcast_event(data):
             except Exception:
                 pass
 
-# Low-level Mouse Hook for Scroll Wheel (Tap-Strafe & Bunny Hop detection)
+# Low-level Mouse Hook for 100% Reliable In-Game Mouse & Wheel Telemetry
 def low_level_mouse_proc(nCode, wParam, lParam):
     if nCode == HC_ACTION and connected_clients:
         if wParam == WM_MOUSEMOVE:
@@ -84,6 +90,28 @@ def low_level_mouse_proc(nCode, wParam, lParam):
                 broadcast_event({"type": "wheel", "dir": "up"})
             elif delta < 0:
                 broadcast_event({"type": "wheel", "dir": "down"})
+        elif wParam == WM_LBUTTONDOWN:
+            broadcast_event({"type": "key", "name": "LMB", "down": True})
+        elif wParam == WM_LBUTTONUP:
+            broadcast_event({"type": "key", "name": "LMB", "down": False})
+        elif wParam == WM_RBUTTONDOWN:
+            broadcast_event({"type": "key", "name": "RMB", "down": True})
+        elif wParam == WM_RBUTTONUP:
+            broadcast_event({"type": "key", "name": "RMB", "down": False})
+        elif wParam == WM_XBUTTONDOWN:
+            ms = MSLLHOOKSTRUCT.from_address(lParam)
+            xbtn = ms.mouseData >> 16
+            if xbtn == 1:
+                broadcast_event({"type": "key", "name": "HOLSTER", "down": True})
+            elif xbtn == 2:
+                broadcast_event({"type": "key", "name": "HEAL", "down": True})
+        elif wParam == WM_XBUTTONUP:
+            ms = MSLLHOOKSTRUCT.from_address(lParam)
+            xbtn = ms.mouseData >> 16
+            if xbtn == 1:
+                broadcast_event({"type": "key", "name": "HOLSTER", "down": False})
+            elif xbtn == 2:
+                broadcast_event({"type": "key", "name": "HEAL", "down": False})
     return user32.CallNextHookEx(None, nCode, wParam, lParam)
 
 # Zero-Overhead Adaptive Poller: 120-240 Hz when active, sleeps when no clients connected
