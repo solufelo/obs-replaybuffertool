@@ -190,21 +190,33 @@ async def active_game_api_handler(request):
 
 def poll_media_and_game_thread():
     global latest_media_info
-    ps_script = Path(__file__).resolve().parent.parent / "tools" / "get_media_session.ps1"
+    service_script = Path(__file__).resolve().parent.parent / "tools" / "media_watcher_service.ps1"
+    if not service_script.exists():
+        return
+
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startupinfo.wShowWindow = 0  # SW_HIDE
+
     while True:
         try:
-            if ps_script.exists():
-                res = subprocess.run(
-                    ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(ps_script)],
-                    capture_output=True,
-                    text=True,
-                    timeout=3
-                )
-                if res.returncode == 0 and res.stdout.strip():
-                    latest_media_info = json.loads(res.stdout.strip())
+            proc = subprocess.Popen(
+                ["powershell", "-WindowStyle", "Hidden", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(service_script)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                startupinfo=startupinfo
+            )
+            for line in proc.stdout:
+                line_str = line.strip()
+                if line_str and line_str.startswith("{"):
+                    try:
+                        latest_media_info = json.loads(line_str)
+                    except Exception:
+                        pass
         except Exception:
-            pass
-        time.sleep(1.8)
+            time.sleep(3)
 
 async def ws_handler(request):
     ws = web.WebSocketResponse()
