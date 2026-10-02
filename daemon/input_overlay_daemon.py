@@ -55,7 +55,7 @@ VK_MAP = {
     0xA0: "SHIFT",     # Left Shift
     0x50: "P",         # P (Tactical)
     0x12: "ALT",       # Alt
-    0xA4: "ALT",       # Left Alt
+    0xA4: "LALT",      # Left Alt
     0x31: "1",         # 1
     0x32: "2",         # 2
     0x33: "3",         # 3 (Holster)

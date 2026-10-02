@@ -252,7 +252,12 @@
       width: 86px;
       display: flex;
       flex-direction: row;
-      gap: 3px;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
     }
     .k-sub {
       font-size: 7px;
@@ -428,21 +433,36 @@
     .mouse-keys {
       display: flex;
       width: 100%;
-      height: 46px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      height: 44px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      border-top-left-radius: 14.5px;
+      border-top-right-radius: 14.5px;
+      overflow: hidden;
     }
 
     .m-click {
       flex: 1;
       height: 100%;
-      transition: background 0.02s ease;
+      background: transparent;
+      transition: background 0.04s ease, box-shadow 0.04s ease;
+      position: relative;
     }
     .m-click.left {
-      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      border-right: 1px solid rgba(255, 255, 255, 0.15);
+      border-top-left-radius: 14px;
     }
-    .m-click.active {
-      background: #FFFFFF !important;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 1);
+    .m-click.right {
+      border-top-right-radius: 14px;
+    }
+    .m-click.left.active {
+      background: linear-gradient(180deg, #00F0FF 0%, rgba(0, 190, 230, 0.8) 100%) !important;
+      border-top-left-radius: 14px !important;
+      box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.9), 0 0 10px rgba(0, 240, 255, 0.7) !important;
+    }
+    .m-click.right.active {
+      background: linear-gradient(180deg, #00FFE0 0%, rgba(0, 210, 200, 0.8) 100%) !important;
+      border-top-right-radius: 14px !important;
+      box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.9), 0 0 10px rgba(0, 255, 224, 0.7) !important;
     }
 
     .m-wheel-track {
@@ -493,8 +513,8 @@
     <!-- Header: Logo, Identity, Dynamic Combo Tag, and Beloved Momentum Meter -->
     <div class="hud-header">
       <div class="hud-tag">
-        <img class="brand-logo" src="assets/captain_solo_logo.png" alt="Solo Logo">
-        <span>CAPTAIN SOLO</span>
+        <span class="hud-beacon"></span>
+        <span>KINETIC HUD</span>
       </div>
       <div id="comboBadge" class="combo-badge">TAP-STRAFE</div>
       <div class="momentum-meter">
@@ -514,8 +534,8 @@
       <div class="keyboard-pod">
         <!-- Row 1: Tactical [P / Alt], Forward [W], Interact [E] -->
         <div class="key-row">
-          <div id="key-stim" class="k-cap k-stim" title="Octane Stim (P / Left Alt) - 'Faster, Faster, Faster!'">
-            <span>P</span>
+          <div id="key-stim" class="k-cap k-stim" title="Octane Stim (Left Alt) - 'Faster, Faster, Faster!'">
+            <span>L-ALT</span>
             <span class="k-sub">STIM ⚡</span>
           </div>
           <div id="key-w" class="k-cap k-wasd">W</div>
@@ -685,9 +705,9 @@
       'SPACE': 'JUMP',
       'SHIFT': 'SPRINT',
       'E': 'INTERACT',
-      'P': 'STIM',
+      'P': 'STIM',        // Key P from Windows (physically Left Alt on Ace 68)
+      'LALT': 'STIM',     // Direct Left Alt fallback
       'ALT': 'STIM',
-      'Q': 'STIM',
       '3': 'HOLSTER',
       '4': 'HEAL'
     };
@@ -849,7 +869,7 @@
       if (k === 'A') setKey('A', true);
       if (k === 'S') setKey('S', true);
       if (k === 'D') setKey('D', true);
-      if (k === 'P' || e.code === 'AltLeft' || e.altKey || k === 'Q') setKey('STIM', true);
+      if (k === 'P' || e.code === 'AltLeft' || e.key === 'Alt') setKey('STIM', true);
       if (k === 'E') setKey('INTERACT', true);
       if (k === 'C' || e.code === 'ControlLeft') setKey('CROUCH', true);
       if (k === ' ' || e.code === 'Space') setKey('JUMP', true);
@@ -864,7 +884,7 @@
       if (k === 'A') setKey('A', false);
       if (k === 'S') setKey('S', false);
       if (k === 'D') setKey('D', false);
-      if (k === 'P' || e.code === 'AltLeft' || !e.altKey || k === 'Q') setKey('STIM', false);
+      if (k === 'P' || e.code === 'AltLeft' || e.key === 'Alt') setKey('STIM', false);
       if (k === 'E') setKey('INTERACT', false);
       if (k === 'C' || e.code === 'ControlLeft') setKey('CROUCH', false);
       if (k === ' ' || e.code === 'Space') setKey('JUMP', false);

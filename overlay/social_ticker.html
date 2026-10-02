@@ -41,22 +41,36 @@
       position: relative;
     }
 
-    /* Monogram Brand Mark */
+    /* Broadcast Live Pip */
     .brand-mark {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       padding-right: 9px;
       border-right: 1px solid rgba(255, 255, 255, 0.14);
       flex-shrink: 0;
     }
 
-    .brand-logo-img {
-      width: 18px;
-      height: 18px;
+    .ticker-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 0 8px rgba(0, 240, 255, 0.45);
+      background: #00F0FF;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.9);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .ticker-txt {
+      font-size: 9px;
+      font-weight: 800;
+      color: #00F0FF;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
     }
 
     /* Marquee Stage */
@@ -133,7 +147,8 @@
 <body>
   <div class="ticker-bar">
     <div class="brand-mark">
-      <img src="assets/captain_solo_logo.png" class="brand-logo-img" alt="Captain Solo">
+      <span class="ticker-dot"></span>
+      <span class="ticker-txt">LIVE</span>
     </div>
 
     <div class="stage">
