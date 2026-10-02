@@ -142,6 +142,13 @@ def run_http_server():
     event_loop.run_forever()
 
 def main():
+    # Single-Instance Mutex Guard
+    mutex_name = "Global\\OBS_Input_Overlay_Daemon_Mutex"
+    mutex = kernel32.CreateMutexW(None, True, mutex_name)
+    if kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+        print("[InputOverlay] Daemon already running. Exiting cleanly.", flush=True)
+        sys.exit(0)
+
     # 1. Start HTTP / WebSocket Server
     server_thread = threading.Thread(target=run_http_server, daemon=True)
     server_thread.start()

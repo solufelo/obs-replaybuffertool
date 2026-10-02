@@ -2084,8 +2084,8 @@
             "name": "STREAM STARTING SOON"
         }
     ],
-    "current_scene": "JUST CHATTING / FULL CAM (Vibes)",
-    "current_program_scene": "JUST CHATTING / FULL CAM (Vibes)",
+    "current_scene": "GAMEPLAY ULTRA (Active)",
+    "current_program_scene": "GAMEPLAY ULTRA (Active)",
     "canvases": [],
     "current_transition": "Cut",
     "transition_duration": 300,

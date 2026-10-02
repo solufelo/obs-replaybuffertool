@@ -7,6 +7,7 @@ import socket
 import struct
 import base64
 import winsound
+import ctypes
 from pathlib import Path
 
 # Base directories to watch for incoming OBS clips
@@ -240,6 +241,13 @@ def organize_clip(file_path):
         winsound.Beep(1000, 100)
 
 def main():
+    # Single-Instance Mutex Guard
+    mutex_name = "Global\\OBS_ShadowPlay_Engine_Mutex"
+    mutex = ctypes.windll.kernel32.CreateMutexW(None, True, mutex_name)
+    if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+        print("[ShadowPlayEngine] Engine already running. Exiting cleanly.", flush=True)
+        sys.exit(0)
+
     CLIPS_BASE_DIR.mkdir(parents=True, exist_ok=True)
     known_files = set()
     for d in WATCH_DIRS:

@@ -47,36 +47,38 @@ $actionOverlay = New-ScheduledTaskAction -Execute $pythonw -Argument "`"$overlay
 Register-ScheduledTask -TaskName "OBS_Input_Overlay" -Action $actionOverlay -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
 Start-ScheduledTask -TaskName "OBS_Input_Overlay"
 
-# 5. Register OBS 24/7 Autostart Task
-Write-Host ">>> Registering OBS 24/7 Silent Background Task..." -ForegroundColor Green
-$actionObs = New-ScheduledTaskAction -Execute $obsPath -Argument "--disable-shutdown-check --startreplaybuffer --minimize-to-tray" -WorkingDirectory "C:\Program Files\obs-studio\bin\64bit"
+# 5. Register Single-Instance OBS Task (Guarantees Zero Duplicate Collisions)
+Write-Host ">>> Registering Single-Instance OBS Autostart Task..." -ForegroundColor Green
+$launchObsScript = "$PSScriptRoot\scripts\launch_obs.ps1"
+$actionObs = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$launchObsScript`"" -WorkingDirectory "$PSScriptRoot\scripts"
 Register-ScheduledTask -TaskName "OBS_ShadowPlay" -Action $actionObs -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
 
-# 6. Deploy Windows Startup & Desktop Shortcuts
+# 6. Purge Legacy Startup Folder Shortcuts (Eliminates the 2-Instance Boot Collision Bug)
+$legacyStartupFiles = @(
+    "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\OBS ShadowPlay.lnk",
+    "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\OBS Input Overlay.lnk",
+    "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Clip Beep Watcher.lnk"
+)
+foreach ($f in $legacyStartupFiles) {
+    if (Test-Path $f) {
+        Remove-Item $f -Force -ErrorAction SilentlyContinue
+        Write-Host ">>> Cleaned redundant startup entry: $(Split-Path $f -Leaf)" -ForegroundColor DarkGray
+    }
+}
+
+# 7. Deploy Desktop Shortcut with Mutex Guard
 $sh = New-Object -ComObject WScript.Shell
-$startupObs = $sh.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\OBS ShadowPlay.lnk")
-$startupObs.TargetPath = $obsPath
-$startupObs.Arguments = "--disable-shutdown-check --startreplaybuffer --minimize-to-tray"
-$startupObs.WorkingDirectory = "C:\Program Files\obs-studio\bin\64bit"
-$startupObs.WindowStyle = 7
-$startupObs.Save()
-
-$startupOverlay = $sh.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\OBS Input Overlay.lnk")
-$startupOverlay.TargetPath = $pythonw
-$startupOverlay.Arguments = "`"$overlayDaemonScript`""
-$startupOverlay.WorkingDirectory = "$PSScriptRoot\daemon"
-$startupOverlay.WindowStyle = 7
-$startupOverlay.Save()
-
 $desktopObs = $sh.CreateShortcut("$env:USERPROFILE\Desktop\OBS ShadowPlay.lnk")
-$desktopObs.TargetPath = $obsPath
-$desktopObs.Arguments = "--disable-shutdown-check --startreplaybuffer --minimize-to-tray"
-$desktopObs.WorkingDirectory = "C:\Program Files\obs-studio\bin\64bit"
+$desktopObs.TargetPath = "powershell.exe"
+$desktopObs.Arguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$launchObsScript`""
+$desktopObs.WorkingDirectory = "$PSScriptRoot\scripts"
+$desktopObs.IconLocation = "$obsPath,0"
 $desktopObs.WindowStyle = 7
 $desktopObs.Save()
 
 Write-Host "==============================================================================" -ForegroundColor Green
-Write-Host " SUCCESS: ShadowPlay-Pro-OBS is installed and active 24/7!" -ForegroundColor Green
+Write-Host " SUCCESS: ShadowPlay-Pro-OBS is configured with Single-Instance Boot Guard!" -ForegroundColor Green
+Write-Host " Default Program Scene: GAMEPLAY ULTRA (Active) [Face + Game Capture]" -ForegroundColor Yellow
 Write-Host " Replay Buffer Duration: 90 Seconds" -ForegroundColor Yellow
 Write-Host " Hotkeys: Ctrl + Shift + C | Ctrl + X" -ForegroundColor Yellow
 Write-Host " Clips Location: $clipsDir" -ForegroundColor Yellow
