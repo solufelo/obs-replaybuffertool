@@ -5,6 +5,7 @@ import time
 import ctypes
 import asyncio
 import threading
+import subprocess
 from ctypes import wintypes
 from pathlib import Path
 from aiohttp import web
@@ -70,6 +71,11 @@ VK_MAP = {
 OVERLAY_DIR = Path(__file__).resolve().parent.parent / "overlay"
 HTML_FILE = OVERLAY_DIR / "index.html"
 JITTER_FILE = OVERLAY_DIR / "jitter_overlay.html"
+HYBRID_FILE = OVERLAY_DIR / "apex_jitter_hybrid.html"
+SPOTIFY_FILE = OVERLAY_DIR / "spotify_overlay.html"
+RANK_FILE = OVERLAY_DIR / "rank_trackers.html"
+
+latest_media_info = {"Active": False, "Status": "Standby", "Game": "apex"}
 
 connected_clients = set()
 event_loop = None
@@ -161,6 +167,45 @@ async def jitter_handler(request):
         return web.FileResponse(JITTER_FILE)
     return web.Response(text="Jitter Overlay HTML file not found", status=404)
 
+async def hybrid_handler(request):
+    if HYBRID_FILE.exists():
+        return web.FileResponse(HYBRID_FILE)
+    return web.Response(text="Apex Hybrid Overlay HTML file not found", status=404)
+
+async def spotify_handler(request):
+    if SPOTIFY_FILE.exists():
+        return web.FileResponse(SPOTIFY_FILE)
+    return web.Response(text="Spotify Overlay HTML file not found", status=404)
+
+async def rank_handler(request):
+    if RANK_FILE.exists():
+        return web.FileResponse(RANK_FILE)
+    return web.Response(text="Rank Tracker Overlay HTML file not found", status=404)
+
+async def now_playing_api_handler(request):
+    return web.json_response(latest_media_info)
+
+async def active_game_api_handler(request):
+    return web.json_response({"game": latest_media_info.get("Game", "apex")})
+
+def poll_media_and_game_thread():
+    global latest_media_info
+    ps_script = Path(__file__).resolve().parent.parent / "tools" / "get_media_session.ps1"
+    while True:
+        try:
+            if ps_script.exists():
+                res = subprocess.run(
+                    ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(ps_script)],
+                    capture_output=True,
+                    text=True,
+                    timeout=3
+                )
+                if res.returncode == 0 and res.stdout.strip():
+                    latest_media_info = json.loads(res.stdout.strip())
+        except Exception:
+            pass
+        time.sleep(1.8)
+
 async def ws_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
@@ -186,6 +231,18 @@ def run_http_server():
     app.router.add_get('/index.html', index_handler)
     app.router.add_get('/jitter', jitter_handler)
     app.router.add_get('/jitter_overlay.html', jitter_handler)
+    app.router.add_get('/hybrid', hybrid_handler)
+    app.router.add_get('/hybrid.html', hybrid_handler)
+    app.router.add_get('/ultra', hybrid_handler)
+    app.router.add_get('/apex_jitter_hybrid.html', hybrid_handler)
+    app.router.add_get('/spotify', spotify_handler)
+    app.router.add_get('/spotify_overlay.html', spotify_handler)
+    app.router.add_get('/music', spotify_handler)
+    app.router.add_get('/rank', rank_handler)
+    app.router.add_get('/rank_trackers.html', rank_handler)
+    app.router.add_get('/tracker', rank_handler)
+    app.router.add_get('/api/now-playing', now_playing_api_handler)
+    app.router.add_get('/api/active-game', active_game_api_handler)
     if (OVERLAY_DIR / "assets").exists():
         app.router.add_static('/assets', OVERLAY_DIR / "assets")
     app.router.add_get('/ws', ws_handler)
@@ -210,6 +267,10 @@ def main():
     # 2. Start 120 FPS High-Performance Key Poller
     poller_thread = threading.Thread(target=poll_keys_thread, daemon=True)
     poller_thread.start()
+
+    # 3. Start Media & Active Game Poller
+    media_thread = threading.Thread(target=poll_media_and_game_thread, daemon=True)
+    media_thread.start()
 
     # 3. Install Mouse Hook for Scroll Wheel
     mouse_callback = HOOKPROC(low_level_mouse_proc)

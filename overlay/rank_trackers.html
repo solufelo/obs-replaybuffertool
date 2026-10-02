@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Solo Esports Rank Grinder Suite</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background: transparent;
+      width: 500px;
+      height: 120px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Master Esports HUD Container */
+    .tracker-card {
+      width: 492px;
+      height: 112px;
+      background: rgba(9, 12, 18, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      box-shadow: 
+        0 14px 36px rgba(0, 0, 0, 0.75),
+        0 0 0 1px rgba(0, 240, 255, 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 7px 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ambient Dynamic Tier Glow */
+    .ambient-tier-glow {
+      position: absolute;
+      left: -20px;
+      top: -10px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.28) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(18px);
+      transition: background 0.4s ease;
+    }
+
+    /* Top Selector & Title Row */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 18px;
+    }
+
+    .game-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .game-pill {
+      font-size: 7px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 1.5px 5px;
+      border-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .game-pill:hover {
+      color: #FFFFFF;
+      border-color: rgba(0, 240, 255, 0.4);
+    }
+
+    .game-pill.active {
+      color: #0A0C10;
+      background: #00F0FF;
+      border-color: #00F0FF;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+    }
+
+    .mode-tag {
+      font-size: 7.5px;
+      font-weight: 800;
+      color: #FF0055;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mode-tag .pulse-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #FF0055;
+      box-shadow: 0 0 8px #FF0055;
+      animation: modePulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes modePulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Main Telemetry Body */
+    .telemetry-body {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 60px;
+    }
+
+    /* Rank Holographic Icon Cluster */
+    .rank-emblem-box {
+      width: 58px;
+      height: 58px;
+      background: rgba(14, 18, 26, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .rank-icon-txt {
+      font-size: 20px;
+      line-height: 1;
+      filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.8));
+    }
+
+    .rank-tier-sub {
+      font-size: 6px;
+      font-weight: 900;
+      color: #00F0FF;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    /* Center Progress & Rating Section */
+    .rank-details {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      padding: 2px 0;
+    }
+
+    .rank-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rank-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .rank-points {
+      font-size: 11px;
+      font-weight: 800;
+      color: #00F0FF;
+      letter-spacing: 0.06em;
+    }
+
+    /* Progress Bar */
+    .bar-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 78%;
+      background: linear-gradient(90deg, #00F0FF 0%, #00FFE0 70%, #FFFFFF 100%);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+      border-radius: 2px;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Delta & Target Row */
+    .sub-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 7.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .gain-pill {
+      color: #00FF66;
+      background: rgba(0, 255, 102, 0.12);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* Right Session Stats Box */
+    .stats-cluster {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .stat-box {
+      width: 62px;
+      height: 100%;
+      background: rgba(14, 18, 26, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .stat-val {
+      font-size: 11px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-val.win { color: #00FF66; }
+    .stat-val.gold { color: #FFD700; }
+
+    .stat-lbl {
+      font-size: 6px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Bottom Quick Action Bar */
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 15px;
+      padding-top: 2px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 7px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .ctrl-btns {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      border-radius: 2px;
+      padding: 0 4px;
+      font-size: 7.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .ctrl-btn:hover {
+      background: #00F0FF;
+      color: #0A0C10;
+    }
+  </style>
+</head>
+<body>
+  <div class="tracker-card">
+    <div id="ambientGlow" class="ambient-tier-glow"></div>
+
+    <!-- Top Header: Multi-Game Switcher & Live Grind Status -->
+    <div class="top-bar">
+      <div class="game-pills">
+        <div class="game-pill active" onclick="switchGame('apex')">Apex</div>
+        <div class="game-pill" onclick="switchGame('rivals')">M-Rivals</div>
+        <div class="game-pill" onclick="switchGame('valorant')">Valorant</div>
+        <div class="game-pill" onclick="switchGame('finals')">The Finals</div>
+        <div class="game-pill" onclick="switchGame('overwatch')">Overwatch</div>
+        <div class="game-pill" onclick="switchGame('rl')">Rocket Lge</div>
+        <div class="game-pill" onclick="switchGame('tekken')">Tekken 8</div>
+      </div>
+      <div class="mode-tag">
+        <div class="pulse-dot"></div>
+        <span id="grindStatus">RANK GRIND // LIVE</span>
+      </div>
+    </div>
+
+    <!-- Main Telemetry Body -->
+    <div class="telemetry-body">
+      <!-- Left: Rank Hologram Emblem -->
+      <div class="rank-emblem-box">
+        <div id="rankIcon" class="rank-icon-txt">💎</div>
+        <div id="rankTier" class="rank-tier-sub">DIAMOND I</div>
+      </div>
+
+      <!-- Center: Title, Progress Bar, Points & Next Goal -->
+      <div class="rank-details">
+        <div class="rank-title-row">
+          <div id="gameTitle" class="rank-title">APEX LEGENDS // MASTER PUSH</div>
+          <div id="rankPoints" class="rank-points">11,480 / 12,000 RP</div>
+        </div>
+
+        <div class="bar-track">
+          <div id="barFill" class="bar-fill" style="width: 76%;"></div>
+        </div>
+
+        <div class="sub-meta-row">
+          <span id="gainPill" class="gain-pill">▲ +125 RP THIS MATCH</span>
+          <span id="targetGoal">NEXT: MASTER (520 RP LEFT)</span>
+        </div>
+      </div>
+
+      <!-- Right: Performance & Session Cluster -->
+      <div class="stats-cluster">
+        <div class="stat-box">
+          <div id="sessionRecord" class="stat-val win">6W - 1L</div>
+          <div class="stat-lbl">SESSION</div>
+        </div>
+        <div class="stat-box">
+          <div id="secondaryStat" class="stat-val gold">+480</div>
+          <div id="secondaryLbl" class="stat-lbl">NET RP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Metadata & Live Quick Controls -->
+    <div class="bottom-bar">
+      <div id="footerMeta">OFFICIAL ESPORTS TELEMETRY // CAPTAIN SOLO</div>
+      <div class="ctrl-btns">
+        <span>SCORE:</span>
+        <button class="ctrl-btn" onclick="adjustPoints(-25)">-25</button>
+        <button class="ctrl-btn" onclick="adjustPoints(25)">+25</button>
+        <button class="ctrl-btn" onclick="adjustPoints(100)">+100</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GAME_CONFIGS = {
+      apex: {
+        title: 'APEX LEGENDS // MASTER PUSH',
+        tier: 'DIAMOND I',
+        icon: '💎',
+        color: '#00F0FF',
+        pointsCurrent: 11480,
+        pointsTarget: 12000,
+        unit: 'RP',
+        gain: '+125 RP THIS MATCH',
+        target: 'NEXT: MASTER (520 RP LEFT)',
+        record: '6W - 1L',
+        secondary: '+480',
+        secondaryLbl: 'NET RP'
+      },
+      rivals: {
+        title: 'MARVEL RIVALS // ETERNITY PUSH',
+        tier: 'GRANDMASTER',
+        icon: '⚡',
+        color: '#FF0055',
+        pointsCurrent: 3820,
+        pointsTarget: 4000,
+        unit: 'CP',
+        gain: '▲ +45 CP WIN STREAK',
+        target: 'NEXT: ETERNITY (180 CP LEFT)',
+        record: '7W - 0L',
+        secondary: '7 STREAK',
+        secondaryLbl: 'WIN STREAK'
+      },
+      valorant: {
+        title: 'VALORANT // RADIANT PUSH',
+        tier: 'IMMORTAL 3',
+        icon: '👑',
+        color: '#FF4655',
+        pointsCurrent: 82,
+        pointsTarget: 100,
+        unit: 'RR',
+        gain: '▲ +24 RR MATCH MVP',
+        target: 'NEXT: RADIANT (#342 NA)',
+        record: '5W - 1L',
+        secondary: '274',
+        secondaryLbl: 'AVG ACS'
+      },
+      finals: {
+        title: 'THE FINALS // RUBY GRIND',
+        tier: 'DIAMOND I',
+        icon: '🏆',
+        color: '#FFD700',
+        pointsCurrent: 48600,
+        pointsTarget: 50000,
+        unit: 'FP',
+        gain: '▲ +850 FP TOURNAMENT WIN',
+        target: 'NEXT: TOP 500 RUBY (1,400 FP)',
+        record: '4 TOURN W',
+        secondary: '$285K',
+        secondaryLbl: 'CASHOUT'
+      },
+      overwatch: {
+        title: 'OVERWATCH 2 // CHAMPION PUSH',
+        tier: 'GRANDMASTER 1',
+        icon: '🛡️',
+        color: '#FA9C1E',
+        pointsCurrent: 76,
+        pointsTarget: 100,
+        unit: '% DIV',
+        gain: '▲ +21% FAVORED WIN',
+        target: 'NEXT: CHAMPION 5 (24% LEFT)',
+        record: '8W - 2L',
+        secondary: '80.0%',
+        secondaryLbl: 'WIN RATE'
+      },
+      rl: {
+        title: 'ROCKET LEAGUE // SSL GRIND',
+        tier: 'GRAND CHAMP 3',
+        icon: '🚀',
+        color: '#00FFE0',
+        pointsCurrent: 1785,
+        pointsTarget: 1860,
+        unit: 'MMR',
+        gain: '▲ +11 MMR (3 STREAK)',
+        target: 'NEXT: SUPERSONIC LEGEND',
+        record: '9W - 2L',
+        secondary: '+77',
+        secondaryLbl: 'NET MMR'
+      },
+      tekken: {
+        title: 'TEKKEN 8 // GOD OF DESTRUCTION',
+        tier: 'TEKKEN GOD',
+        icon: '🥊',
+        color: '#FF0055',
+        pointsCurrent: 248000,
+        pointsTarget: 260000,
+        unit: 'PROWESS',
+        gain: '▲ +1,200 PROWESS WIN',
+        target: 'NEXT: GOD OF DESTRUCTION',
+        record: '12W - 3L',
+        secondary: '5 STREAK',
+        secondaryLbl: 'WIN STREAK'
+      }
+    };
+
+    let currentGame = 'apex';
+
+    function renderGame(key) {
+      const g = GAME_CONFIGS[key];
+      if (!g) return;
+
+      document.getElementById('gameTitle').textContent = g.title;
+      document.getElementById('rankIcon').textContent = g.icon;
+      document.getElementById('rankTier').textContent = g.tier;
+      document.getElementById('rankTier').style.color = g.color;
+
+      const pct = Math.min(100, Math.max(5, (g.pointsCurrent / g.pointsTarget) * 100));
+      document.getElementById('barFill').style.width = pct + '%';
+      document.getElementById('rankPoints').textContent = `${g.pointsCurrent.toLocaleString()} / ${g.pointsTarget.toLocaleString()} ${g.unit}`;
+      document.getElementById('gainPill').textContent = g.gain;
+      document.getElementById('targetGoal').textContent = g.target;
+      document.getElementById('sessionRecord').textContent = g.record;
+      document.getElementById('secondaryStat').textContent = g.secondary;
+      document.getElementById('secondaryLbl').textContent = g.secondaryLbl;
+
+      document.getElementById('ambientGlow').style.background = `radial-gradient(circle, ${g.color}33 0%, transparent 70%)`;
+
+      // Update pills
+      document.querySelectorAll('.game-pill').forEach(pill => {
+        const text = pill.textContent.toLowerCase();
+        if (text.includes(key.substring(0, 3))) pill.classList.add('active');
+        else pill.classList.remove('active');
+      });
+    }
+
+    function switchGame(key) {
+      currentGame = key;
+      renderGame(key);
+    }
+
+    function adjustPoints(delta) {
+      const g = GAME_CONFIGS[currentGame];
+      if (!g) return;
+      g.pointsCurrent = Math.max(0, g.pointsCurrent + delta);
+      renderGame(currentGame);
+    }
+
+    // Check URL parameters (e.g. ?game=rivals)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramGame = urlParams.get('game');
+    if (paramGame && GAME_CONFIGS[paramGame]) {
+      currentGame = paramGame;
+    }
+
+    renderGame(currentGame);
+
+    // Auto-poll game processes via daemon if available
+    async function checkActiveGame() {
+      try {
+        const res = await fetch('/api/active-game');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.game && data.game !== currentGame && GAME_CONFIGS[data.game]) {
+            switchGame(data.game);
+          }
+        }
+      } catch(e) {}
+    }
+
+    setInterval(checkActiveGame, 3000);
+  </script>
+</body>
+</html>

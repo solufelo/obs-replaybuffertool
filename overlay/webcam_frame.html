@@ -24,10 +24,11 @@
     .frame-container {
       position: absolute;
       inset: 1px;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
       box-shadow: 
-        0 14px 36px rgba(0, 0, 0, 0.75),
+        0 16px 40px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(0, 240, 255, 0.22),
         inset 0 0 0 1px rgba(255, 255, 255, 0.05);
       pointer-events: none;
       overflow: hidden;
@@ -37,9 +38,42 @@
     .inner-vignette {
       position: absolute;
       inset: 0;
-      border-radius: 5px;
-      box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.45);
+      border-radius: 7px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
       pointer-events: none;
+    }
+
+    /* Precision Cyber Corner Ticks */
+    .corner-tick {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .corner-tick.tr {
+      top: 3px;
+      right: 3px;
+      border-top: 1.5px solid #00F0FF;
+      border-right: 1.5px solid #00F0FF;
+      border-top-right-radius: 5px;
+      filter: drop-shadow(0 0 4px #00F0FF);
+    }
+    .corner-tick.bl {
+      bottom: 3px;
+      left: 3px;
+      border-bottom: 1.5px solid #00F0FF;
+      border-left: 1.5px solid #00F0FF;
+      border-bottom-left-radius: 5px;
+      filter: drop-shadow(0 0 4px #00F0FF);
+    }
+    .corner-tick.br {
+      bottom: 3px;
+      right: 3px;
+      border-bottom: 1.5px solid #00F0FF;
+      border-right: 1.5px solid #00F0FF;
+      border-bottom-right-radius: 5px;
+      filter: drop-shadow(0 0 4px #00F0FF);
     }
 
     /* Luxury Studio Docked Badge */
@@ -50,14 +84,15 @@
       display: flex;
       align-items: center;
       gap: 7px;
-      background: rgba(9, 11, 15, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(8, 11, 16, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 5px 12px;
-      border-bottom-right-radius: 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      border-right: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      border-bottom-right-radius: 7px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+      border-right: 1px solid rgba(0, 240, 255, 0.25);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      z-index: 4;
     }
 
     /* Micro Broadcast Indicator Dot */
@@ -66,7 +101,7 @@
       height: 6px;
       background: #FF3B30;
       border-radius: 50%;
-      box-shadow: 0 0 8px rgba(255, 59, 48, 0.7);
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.8);
       animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
@@ -77,21 +112,52 @@
 
     /* Studio Typography */
     .brand-name {
-      font-size: 10.5px;
-      font-weight: 700;
+      font-size: 10px;
+      font-weight: 800;
       color: #FFFFFF;
       letter-spacing: 0.18em;
       text-transform: uppercase;
     }
 
     .brand-channel {
-      font-size: 9px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.4);
+      font-size: 8.5px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.45);
       letter-spacing: 0.14em;
       text-transform: uppercase;
       padding-left: 6px;
       border-left: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Bottom-Right Camera Telemetry Tag (Viral Clips & Reels) */
+    .cam-telemetry {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(8, 11, 16, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 3px 8px;
+      border-top-left-radius: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 7.5px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      z-index: 4;
+    }
+
+    .cam-telemetry .rec-dot {
+      width: 4px;
+      height: 4px;
+      background: #00F0FF;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #00F0FF;
     }
   </style>
 </head>
@@ -99,11 +165,23 @@
   <div class="frame-container">
     <div class="inner-vignette"></div>
 
+    <!-- Cyber Corner Accents -->
+    <div class="corner-tick tr"></div>
+    <div class="corner-tick bl"></div>
+    <div class="corner-tick br"></div>
+
+    <!-- Docked Studio Header -->
     <div class="studio-tag">
-      <img src="assets/captain_solo_logo.png" style="width: 14px; height: 14px; border-radius: 50%; object-fit: cover;" alt="Logo">
+      <img src="assets/captain_solo_logo.png" style="width: 14px; height: 14px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 6px rgba(0, 240, 255, 0.5);" alt="Logo">
       <div class="live-dot"></div>
       <span class="brand-name">CAPTAIN SOLO</span>
       <span class="brand-channel">STUDIO</span>
+    </div>
+
+    <!-- Docked Telemetry Tag -->
+    <div class="cam-telemetry">
+      <span class="rec-dot"></span>
+      <span>1080P PRO // 60 FPS</span>
     </div>
   </div>
 </body>
