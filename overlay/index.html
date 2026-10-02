@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Captain Solo Minimalist Kinetic HUD</title>
+  <title>Captain Solo Kinetic HUD</title>
   <style>
     * {
       box-sizing: border-box;
@@ -27,7 +27,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Floating Esports HUD Container - Fully Transparent, Zero Clunky Borders */
+    /* Floating Esports HUD Container - Fully Transparent, Zero Clunky Box */
     .hud-console {
       width: 354px;
       height: 122px;
@@ -38,7 +38,7 @@
       position: relative;
     }
 
-    /* Ultra-Slim Header / Minimal Dynamic Combo Strip */
+    /* Header: Identity, Dynamic Combo Tag, and Beloved Momentum Meter */
     .hud-header {
       height: 14px;
       display: flex;
@@ -66,7 +66,7 @@
       box-shadow: 0 0 6px #00F0FF;
     }
 
-    /* Subtle Floating Movement Combo Badge */
+    /* Floating Movement Combo Badge */
     .combo-badge {
       opacity: 0;
       font-size: 7.5px;
@@ -91,6 +91,39 @@
       background: #00F0FF;
       box-shadow: 0 0 12px #00F0FF;
     }
+
+    /* Kinetic Momentum Gauge */
+    .momentum-meter {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .meter-label {
+      font-size: 7px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.38);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .meter-bars {
+      display: flex;
+      gap: 2px;
+    }
+
+    .meter-seg {
+      width: 4px;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 1px;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .meter-seg.lit-1 { background: rgba(0, 240, 255, 0.7); box-shadow: 0 0 5px rgba(0, 240, 255, 0.5); }
+    .meter-seg.lit-2 { background: rgba(0, 240, 255, 0.95); box-shadow: 0 0 7px rgba(0, 240, 255, 0.75); }
+    .meter-seg.lit-3 { background: #FFFFFF; box-shadow: 0 0 9px #FFFFFF; }
+    .meter-seg.lit-4 { background: #FFFFFF; box-shadow: 0 0 12px #FFFFFF; }
 
     /* Main HUD Body */
     .hud-body {
@@ -131,7 +164,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 4px;
       color: rgba(255, 255, 255, 0.75);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.05em;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
@@ -189,7 +222,7 @@
       box-shadow: 0 0 12px rgba(0, 240, 255, 0.8) !important;
     }
 
-    /* Sturdy Key Sizing & Absolute WASD Symmetry */
+    /* Sizing & Alignment */
     .k-wasd {
       width: 36px;
     }
@@ -229,8 +262,14 @@
 
     .k-holster {
       width: 48px;
-      font-size: 9.5px;
-      letter-spacing: 0.06em;
+      font-size: 9px;
+      letter-spacing: 0.05em;
+    }
+
+    .k-heal {
+      width: 44px;
+      font-size: 9px;
+      letter-spacing: 0.05em;
     }
 
     .k-jump {
@@ -239,7 +278,7 @@
       letter-spacing: 0.16em;
     }
 
-    /* Subtle Translucent Pod Divider */
+    /* Divider */
     .hud-divider {
       width: 1px;
       height: 96px;
@@ -255,7 +294,7 @@
       height: 100%;
     }
 
-    /* Cohesive Vertical Scroll Pillar: Down = Jump, Up = Tap Strafe */
+    /* Cohesive Vertical Scroll Pillar: Down = Jump, Up = Tap-Strafe */
     .wheel-pillar {
       display: flex;
       flex-direction: column;
@@ -297,7 +336,7 @@
       color: rgba(255, 255, 255, 0.65);
     }
 
-    /* Up = Tap-Strafe Active Flash */
+    /* Up = Tap-Strafe */
     .wheel-btn.up.active {
       background: #00F0FF !important;
       border-color: #00F0FF !important;
@@ -310,7 +349,7 @@
       font-weight: 900 !important;
     }
 
-    /* Down = Jump / Bhop Active Flash */
+    /* Down = Jump / Bhop */
     .wheel-btn.down.active {
       background: #FFFFFF !important;
       border-color: #FFFFFF !important;
@@ -323,7 +362,7 @@
       font-weight: 900 !important;
     }
 
-    /* Floating Esports Mouse Chassis */
+    /* Floating Esports Mouse Chassis with Side Buttons (MB4 & MB5) */
     .mouse-frame {
       position: relative;
       width: 32px;
@@ -332,7 +371,7 @@
       border-radius: 16px 16px 11px 11px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
       background: rgba(12, 16, 24, 0.45);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -386,17 +425,46 @@
       transform: translateX(-50%) translateY(3px);
       box-shadow: 0 0 8px #FFFFFF;
     }
+
+    /* Mouse Side Button Pips: MB5 (Heal - top), MB4 (Holster - bottom) */
+    .m-side-btn {
+      position: absolute;
+      left: -4px;
+      width: 3px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.28);
+      border-radius: 2px 0 0 2px;
+      transition: all 0.03s ease;
+    }
+    .m-side-btn.mb5 { top: 32px; }
+    .m-side-btn.mb4 { top: 48px; }
+
+    .m-side-btn.active {
+      background: #00F0FF !important;
+      box-shadow: 0 0 8px #00F0FF;
+      width: 4px;
+      left: -5px;
+    }
   </style>
 </head>
 <body>
   <div class="hud-console">
-    <!-- Top Micro Bar: Identity & Floating Combo Badge (Zero Bloat) -->
+    <!-- Header: Identity, Dynamic Combo Tag, and Beloved Momentum Meter -->
     <div class="hud-header">
       <div class="hud-tag">
         <div class="hud-beacon"></div>
         <span>CAPTAIN SOLO</span>
       </div>
       <div id="comboBadge" class="combo-badge">TAP-STRAFE</div>
+      <div class="momentum-meter">
+        <span class="meter-label">MOMENTUM</span>
+        <div class="meter-bars">
+          <div class="meter-seg" id="seg1"></div>
+          <div class="meter-seg" id="seg2"></div>
+          <div class="meter-seg" id="seg3"></div>
+          <div class="meter-seg" id="seg4"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Main HUD Cluster -->
@@ -422,9 +490,16 @@
           <div id="key-crouch" class="k-cap k-crouch">CROUCH</div>
         </div>
 
-        <!-- Row 3: Holster [3], Ground Jump [Space] -->
+        <!-- Row 3: Holster [3 / MB4], Heal [4 / MB5], Ground Jump [Space] -->
         <div class="key-row">
-          <div id="btn-weapon" class="k-cap k-holster" title="Holster / Cycle (3 / MB4)">3</div>
+          <div id="btn-holster" class="k-cap k-holster" title="Holster / Stow (3 / MB4)">
+            <span>3</span>
+            <span class="k-sub">STOW</span>
+          </div>
+          <div id="btn-heal" class="k-cap k-heal" title="Heal Kit (4 / MB5)">
+            <span>4</span>
+            <span class="k-sub">HEAL</span>
+          </div>
           <div id="key-jump" class="k-cap k-jump">JUMP</div>
         </div>
       </div>
@@ -446,8 +521,10 @@
           </div>
         </div>
 
-        <!-- Sleek Wireframe Mouse Visualizer -->
+        <!-- Sleek Wireframe Mouse Visualizer with MB4/MB5 -->
         <div class="mouse-frame" id="mouseShell">
+          <div id="side-mb5" class="m-side-btn mb5" title="MB5: Heal"></div>
+          <div id="side-mb4" class="m-side-btn mb4" title="MB4: Holster"></div>
           <div class="mouse-keys">
             <div id="mouse-lmb" class="m-click left"></div>
             <div id="mouse-rmb" class="m-click right"></div>
@@ -469,7 +546,10 @@
       'INTERACT': document.getElementById('key-interact'),
       'CROUCH': document.getElementById('key-crouch'),
       'JUMP': document.getElementById('key-jump'),
-      'WEAPON': document.getElementById('btn-weapon'),
+      'HOLSTER': document.getElementById('btn-holster'),
+      'HEAL': document.getElementById('btn-heal'),
+      'MB4': document.getElementById('side-mb4'),
+      'MB5': document.getElementById('side-mb5'),
       'LMB': document.getElementById('mouse-lmb'),
       'RMB': document.getElementById('mouse-rmb'),
       'WHEEL_UP': document.getElementById('wheel-up'),
@@ -479,15 +559,51 @@
 
     const comboBadge = document.getElementById('comboBadge');
     const mouseShell = document.getElementById('mouseShell');
+    const segs = [
+      document.getElementById('seg1'),
+      document.getElementById('seg2'),
+      document.getElementById('seg3'),
+      document.getElementById('seg4')
+    ];
 
     let wheelUpTimer = null;
     let wheelDownTimer = null;
+    const inputHistory = [];
     let lastJumpTime = 0;
     let lastCrouchTime = 0;
     let lastATime = 0;
     let lastDTime = 0;
     let comboTimer = null;
     const trailTimers = {};
+
+    function recordInputEvent() {
+      const now = performance.now();
+      inputHistory.push(now);
+
+      while (inputHistory.length > 0 && now - inputHistory[0] > 1100) {
+        inputHistory.shift();
+      }
+
+      // Update Kinetic Momentum Gauge Segments
+      const count = inputHistory.length;
+      segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
+      segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
+      segs[2].className = count >= 8 ? 'meter-seg lit-3' : 'meter-seg';
+      segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
+    }
+
+    // Decay Momentum smoothly when idle
+    setInterval(() => {
+      const now = performance.now();
+      while (inputHistory.length > 0 && now - inputHistory[0] > 1100) {
+        inputHistory.shift();
+      }
+      const count = inputHistory.length;
+      segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
+      segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
+      segs[2].className = count >= 8 ? 'meter-seg lit-3' : 'meter-seg';
+      segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
+    }, 180);
 
     function triggerComboBadge(text, cyan = false, duration = 400) {
       comboBadge.textContent = text;
@@ -504,7 +620,22 @@
     }
 
     function setKey(name, active) {
+      recordInputEvent();
       const el = elements[name];
+
+      // Side Button Sync: MB4 activates HOLSTER, MB5 activates HEAL
+      if (name === 'HOLSTER') {
+        if (elements['MB4']) {
+          if (active) elements['MB4'].classList.add('active');
+          else elements['MB4'].classList.remove('active');
+        }
+      } else if (name === 'HEAL') {
+        if (elements['MB5']) {
+          if (active) elements['MB5'].classList.add('active');
+          else elements['MB5'].classList.remove('active');
+        }
+      }
+
       if (!el) return;
 
       if (active) {
@@ -569,6 +700,7 @@
     }
 
     function triggerWheel(direction) {
+      recordInputEvent();
       const wheel = elements['MOUSE_WHEEL'];
 
       if (direction === 'up') {
@@ -637,7 +769,8 @@
       if (k === 'C' || e.code === 'ControlLeft') setKey('CROUCH', true);
       if (k === ' ' || e.code === 'Space') setKey('JUMP', true);
       if (e.code === 'ShiftLeft') setKey('SPRINT', true);
-      if (k === '1' || k === '2' || k === '3') setKey('WEAPON', true);
+      if (k === '3') setKey('HOLSTER', true);
+      if (k === '4') setKey('HEAL', true);
     });
 
     window.addEventListener('keyup', (e) => {
@@ -651,19 +784,22 @@
       if (k === 'C' || e.code === 'ControlLeft') setKey('CROUCH', false);
       if (k === ' ' || e.code === 'Space') setKey('JUMP', false);
       if (e.code === 'ShiftLeft') setKey('SPRINT', false);
-      if (k === '1' || k === '2' || k === '3') setKey('WEAPON', false);
+      if (k === '3') setKey('HOLSTER', false);
+      if (k === '4') setKey('HEAL', false);
     });
 
     window.addEventListener('mousedown', (e) => {
       if (e.button === 0) setKey('LMB', true);
       if (e.button === 2) setKey('RMB', true);
-      if (e.button === 3 || e.button === 4) setKey('WEAPON', true);
+      if (e.button === 3) setKey('HOLSTER', true); // MB4
+      if (e.button === 4) setKey('HEAL', true);    // MB5
     });
 
     window.addEventListener('mouseup', (e) => {
       if (e.button === 0) setKey('LMB', false);
       if (e.button === 2) setKey('RMB', false);
-      if (e.button === 3 || e.button === 4) setKey('WEAPON', false);
+      if (e.button === 3) setKey('HOLSTER', false); // MB4
+      if (e.button === 4) setKey('HEAL', false);    // MB5
     });
 
     window.addEventListener('wheel', (e) => {

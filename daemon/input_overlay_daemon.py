@@ -45,12 +45,12 @@ VK_MAP = {
     0xA2: "CROUCH",   # Left Ctrl
     0x20: "JUMP",     # Space
     0x10: "SPRINT",   # Shift
-    0xA0: "SPRINT",   # Left Shift
-    0x31: "WEAPON",   # 1
-    0x32: "WEAPON",   # 2
-    0x33: "WEAPON",   # 3 (Holster)
-    0x05: "WEAPON",   # Mouse 4 (Holster in user config)
-    0x06: "WEAPON",   # Mouse 5
+    0x31: "WEAPON1",  # 1
+    0x32: "WEAPON2",  # 2
+    0x33: "HOLSTER",  # 3 (Holster)
+    0x34: "HEAL",     # 4 (Heal)
+    0x05: "HOLSTER",  # Mouse 4 (Holster in user config)
+    0x06: "HEAL",     # Mouse 5 (Heal in user config)
     0x01: "LMB",
     0x02: "RMB"
 }
