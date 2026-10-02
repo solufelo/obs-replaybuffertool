@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Captain Solo Kinetic Telemetry</title>
+  <title>Captain Solo Minimalist Kinetic HUD</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,11 +12,14 @@
       -webkit-user-select: none;
     }
 
-    body {
-      background: transparent;
-      width: 380px;
-      height: 132px;
+    /* Fixed 360x130 OBS Canvas - Strictly Bound, Zero Overflow */
+    html, body {
+      width: 360px;
+      height: 130px;
+      max-width: 360px;
+      max-height: 130px;
       overflow: hidden;
+      background: transparent;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif;
       display: flex;
       align-items: center;
@@ -24,521 +27,432 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Precision Smoked Glass Console */
-    .telemetry-card {
-      width: 376px;
-      height: 128px;
-      background: rgba(9, 11, 16, 0.88);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      box-shadow: 
-        0 14px 38px rgba(0, 0, 0, 0.8),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-      padding: 7px 9px 8px 9px;
+    /* Floating Esports HUD Container - Fully Transparent, Zero Clunky Borders */
+    .hud-console {
+      width: 354px;
+      height: 122px;
+      background: transparent;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      transition: 
-        border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* High Kinetic Intensity Aura */
-    .telemetry-card.momentum-boost {
-      border-color: rgba(0, 220, 255, 0.45);
-      box-shadow: 
-        0 16px 44px rgba(0, 0, 0, 0.85),
-        0 0 28px rgba(0, 220, 255, 0.2),
-        inset 0 0 18px rgba(0, 220, 255, 0.06);
-    }
-
-    .telemetry-card.momentum-max {
-      border-color: rgba(255, 255, 255, 0.6);
-      box-shadow: 
-        0 18px 48px rgba(0, 0, 0, 0.9),
-        0 0 36px rgba(0, 240, 255, 0.35),
-        inset 0 0 22px rgba(255, 255, 255, 0.1);
-    }
-
-    /* Header Bar */
-    .telemetry-header {
+    /* Ultra-Slim Header / Minimal Dynamic Combo Strip */
+    .hud-header {
+      height: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 14px;
-      padding: 0 1px;
-      margin-bottom: 3px;
+      padding: 0 2px;
     }
 
-    .telemetry-title {
-      font-size: 8px;
+    .hud-tag {
+      font-size: 7.5px;
       font-weight: 800;
-      color: rgba(255, 255, 255, 0.55);
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
+      color: rgba(255, 255, 255, 0.45);
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 5px;
     }
 
-    .status-dot {
-      width: 5px;
-      height: 5px;
+    .hud-beacon {
+      width: 4px;
+      height: 4px;
       background: #00F0FF;
       border-radius: 50%;
-      box-shadow: 0 0 8px #00F0FF;
-      transition: all 0.2s ease;
+      box-shadow: 0 0 6px #00F0FF;
     }
 
-    /* Dynamic Movement Tech Badge */
+    /* Subtle Floating Movement Combo Badge */
     .combo-badge {
-      display: none;
+      opacity: 0;
       font-size: 7.5px;
       font-weight: 800;
       color: #0A0C10;
       background: #FFFFFF;
       padding: 1px 6px;
-      border-radius: 3px;
-      letter-spacing: 0.12em;
+      border-radius: 2px;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
-      animation: popIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      transform: translateY(-2px);
     }
 
     .combo-badge.active {
-      display: inline-block;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .combo-badge.cyan {
       background: #00F0FF;
-      color: #050B14;
       box-shadow: 0 0 12px #00F0FF;
     }
 
-    @keyframes popIn {
-      0% { transform: scale(0.65); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* Kinetic Momentum Energy Bar (Replacing confusing APM / Hz) */
-    .momentum-meter {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .meter-label {
-      font-size: 7px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.35);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .meter-bars {
-      display: flex;
-      gap: 2.5px;
-    }
-
-    .meter-seg {
-      width: 5px;
-      height: 7px;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 1px;
-      transition: background 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .meter-seg.lit-1 { background: rgba(0, 240, 255, 0.65); box-shadow: 0 0 6px rgba(0, 240, 255, 0.4); }
-    .meter-seg.lit-2 { background: rgba(0, 240, 255, 0.95); box-shadow: 0 0 8px rgba(0, 240, 255, 0.7); }
-    .meter-seg.lit-3 { background: #FFFFFF; box-shadow: 0 0 10px #FFFFFF; }
-    .meter-seg.lit-4 { background: #FFFFFF; box-shadow: 0 0 12px #FFFFFF; }
-
-    /* Main Console Pods */
-    .console-body {
+    /* Main HUD Body */
+    .hud-body {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 7px;
-      flex: 1;
+      height: 104px;
+      gap: 6px;
     }
 
     /* === LEFT POD: KEYBOARD MOVEMENT CLUSTER === */
-    .keyboard-cluster {
+    .keyboard-pod {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      flex: 1;
+      justify-content: space-between;
+      height: 100%;
+      width: 254px;
     }
 
-    .cluster-row {
+    .key-row {
       display: flex;
       align-items: center;
+      height: 31px;
       gap: 4px;
-      height: 28px;
     }
 
-    /* Sturdy Keycap Architecture */
-    .key {
+    /* Floating Transparent Keycaps (Smoked Translucent Glass, High Contrast) */
+    .k-cap {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 27px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.13);
+      height: 30px;
+      background: rgba(12, 16, 24, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 4px;
       color: rgba(255, 255, 255, 0.75);
       font-size: 11.5px;
       font-weight: 700;
       letter-spacing: 0.05em;
-      transform: scale(1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
       transition: 
         background 0.22s cubic-bezier(0.12, 0.9, 0.2, 1),
         border-color 0.22s cubic-bezier(0.12, 0.9, 0.2, 1),
         box-shadow 0.24s cubic-bezier(0.12, 0.9, 0.2, 1),
-        color 0.12s ease,
-        transform 0.14s cubic-bezier(0.12, 0.9, 0.2, 1);
+        color 0.12s ease;
       cursor: default;
       overflow: hidden;
     }
 
-    /* Instantaneous Strike (0ms latency response) */
-    .key.active {
+    /* 0ms Instantaneous Peak Strike */
+    .k-cap.active {
       background: #FFFFFF !important;
       color: #0A0C10 !important;
       border-color: #FFFFFF !important;
       font-weight: 800 !important;
-      transform: scale(1.04);
       box-shadow: 
-        0 0 16px rgba(255, 255, 255, 1),
-        0 0 30px rgba(255, 255, 255, 0.5),
-        inset 0 0 5px rgba(255, 255, 255, 0.9) !important;
+        0 0 14px rgba(255, 255, 255, 1),
+        0 0 26px rgba(255, 255, 255, 0.6),
+        inset 0 0 4px rgba(255, 255, 255, 0.9) !important;
       transition: none !important;
       z-index: 2;
     }
 
-    /* Luminescent Phosphor Trail */
-    .key.trail {
+    /* Phosphor Kinetic Trail */
+    .k-cap.trail {
       background: rgba(0, 240, 255, 0.25);
-      border-color: rgba(0, 240, 255, 0.6);
+      border-color: rgba(0, 240, 255, 0.65);
       color: #FFFFFF;
-      box-shadow: 
-        0 0 12px rgba(0, 240, 255, 0.5),
-        inset 0 0 6px rgba(0, 240, 255, 0.25);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.45);
     }
 
-    /* Superglide Synchronized Kinetic Surge */
-    .key.superglide {
+    /* Superglide Synchronized Surge */
+    .k-cap.superglide {
       background: #00F0FF !important;
-      color: #0A0C10 !important;
+      color: #050B14 !important;
       border-color: #FFFFFF !important;
-      transform: scale(1.08) !important;
-      box-shadow: 
-        0 0 24px rgba(0, 240, 255, 1),
-        0 0 44px rgba(255, 255, 255, 0.8) !important;
+      box-shadow: 0 0 22px rgba(0, 240, 255, 1), 0 0 36px rgba(255, 255, 255, 0.8) !important;
       z-index: 3;
     }
 
-    /* Ultra-Flashy Directional Strafe Glow */
-    .key-strafe-l.active {
-      box-shadow: 
-        -8px 0 22px rgba(0, 240, 255, 0.85),
-        0 0 18px rgba(255, 255, 255, 1) !important;
+    /* Directional Strafe Kinematics */
+    .cap-strafe-l.active {
+      box-shadow: -6px 0 20px rgba(0, 240, 255, 0.9), 0 0 14px #FFFFFF !important;
     }
 
-    .key-strafe-r.active {
-      box-shadow: 
-        8px 0 22px rgba(0, 240, 255, 0.85),
-        0 0 18px rgba(255, 255, 255, 1) !important;
+    .cap-strafe-r.active {
+      box-shadow: 6px 0 20px rgba(0, 240, 255, 0.9), 0 0 14px #FFFFFF !important;
     }
 
-    /* Strafe Momentum Chain Wave */
-    .key.strafe-chain {
+    .k-cap.strafe-chain {
       border-color: #00F0FF !important;
-      box-shadow: 0 0 14px rgba(0, 240, 255, 0.7) !important;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.8) !important;
     }
 
-    /* Key Dimensions for Mechanical Alignment */
-    .key-wasd {
-      width: 33px;
+    /* Sturdy Key Sizing & Absolute WASD Symmetry */
+    .k-wasd {
+      width: 36px;
     }
 
-    .key-stim {
-      width: 50px;
+    .k-stim {
+      width: 86px;
       display: flex;
       flex-direction: row;
       gap: 3px;
     }
-    .sub-lbl {
+    .k-sub {
       font-size: 7.5px;
       font-weight: 700;
       opacity: 0.6;
     }
-    .key.active .sub-lbl {
+    .k-cap.active .k-sub {
       color: #0A0C10;
       opacity: 0.95;
     }
 
-    .key-use {
-      width: 46px;
+    .k-interact {
+      width: 124px;
       font-size: 11px;
     }
 
-    .key-sprint {
+    .k-sprint {
       width: 48px;
       font-size: 9.5px;
       letter-spacing: 0.08em;
     }
 
-    .key-crouch {
-      width: 58px;
+    .k-crouch {
+      width: 86px;
       font-size: 9.5px;
       letter-spacing: 0.08em;
     }
 
-    .key-holster {
-      width: 50px;
+    .k-holster {
+      width: 48px;
       font-size: 9.5px;
       letter-spacing: 0.06em;
     }
 
-    .key-space {
+    .k-jump {
       flex: 1;
-      font-size: 10.5px;
+      font-size: 11px;
       letter-spacing: 0.16em;
     }
 
-    /* Vertical Divider */
-    .pod-divider {
+    /* Subtle Translucent Pod Divider */
+    .hud-divider {
       width: 1px;
-      height: 84px;
-      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0.15) 80%, transparent);
-      margin: 0 1px;
+      height: 96px;
+      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.18) 20%, rgba(255, 255, 255, 0.18) 80%, transparent);
     }
 
-    /* === RIGHT POD: COHESIVE WHEEL & MOUSE ENGINE === */
-    .mouse-wheel-cluster {
+    /* === RIGHT POD: VERTICAL WHEEL & MOUSE ENGINE === */
+    .mouse-pod {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      width: 88px;
+      height: 100%;
     }
 
-    /* Sturdy Cohesive Vertical Wheel Column: Down is Jump, Up is Tap Strafe */
-    .wheel-column {
+    /* Cohesive Vertical Scroll Pillar: Down = Jump, Up = Tap Strafe */
+    .wheel-pillar {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      width: 54px;
+      justify-content: space-between;
+      height: 100%;
+      width: 46px;
     }
 
     .wheel-btn {
-      height: 40px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      height: 48px;
+      background: rgba(12, 16, 24, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 1px;
       cursor: default;
       transition: all 0.04s ease;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
     }
 
-    .wheel-btn .w-arrow {
-      font-size: 11px;
+    .wheel-btn .w-glyph {
+      font-size: 12px;
       line-height: 1;
-      color: rgba(255, 255, 255, 0.6);
-      transition: transform 0.08s ease;
+      color: rgba(255, 255, 255, 0.65);
     }
 
-    .wheel-btn .w-title {
+    .wheel-btn .w-lbl {
       font-size: 7.5px;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(255, 255, 255, 0.65);
     }
 
     /* Up = Tap-Strafe Active Flash */
     .wheel-btn.up.active {
       background: #00F0FF !important;
       border-color: #00F0FF !important;
-      box-shadow: 
-        0 0 18px rgba(0, 240, 255, 0.95),
-        0 0 34px rgba(0, 240, 255, 0.5) !important;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.95), 0 0 30px rgba(0, 240, 255, 0.5) !important;
       transform: translateY(-1px);
     }
-    .wheel-btn.up.active .w-arrow,
-    .wheel-btn.up.active .w-title {
+    .wheel-btn.up.active .w-glyph,
+    .wheel-btn.up.active .w-lbl {
       color: #050B14 !important;
       font-weight: 900 !important;
-    }
-    .wheel-btn.up.surging {
-      background: #FFFFFF !important;
-      box-shadow: 
-        0 0 24px #FFFFFF,
-        0 0 40px rgba(0, 240, 255, 0.9) !important;
-      transform: translateY(-2px) scale(1.03);
     }
 
     /* Down = Jump / Bhop Active Flash */
     .wheel-btn.down.active {
       background: #FFFFFF !important;
       border-color: #FFFFFF !important;
-      box-shadow: 
-        0 0 18px rgba(255, 255, 255, 1),
-        0 0 32px rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 0 16px rgba(255, 255, 255, 1), 0 0 28px rgba(255, 255, 255, 0.6) !important;
       transform: translateY(1px);
     }
-    .wheel-btn.down.active .w-arrow,
-    .wheel-btn.down.active .w-title {
+    .wheel-btn.down.active .w-glyph,
+    .wheel-btn.down.active .w-lbl {
       color: #0A0C10 !important;
       font-weight: 900 !important;
     }
 
-    /* Ergonomic Mouse Chassis */
-    .mouse-shell {
+    /* Floating Esports Mouse Chassis */
+    .mouse-frame {
       position: relative;
-      width: 25px;
-      height: 48px;
-      border: 1.5px solid rgba(255, 255, 255, 0.35);
-      border-radius: 13px 13px 9px 9px;
+      width: 32px;
+      height: 98px;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px 16px 11px 11px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(12, 16, 24, 0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .mouse-shell.firing {
+    .mouse-frame.firing {
       border-color: #00F0FF;
       box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
     }
 
-    .mouse-split {
+    .mouse-keys {
       display: flex;
       width: 100%;
-      height: 23px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+      height: 46px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .mouse-btn {
+    .m-click {
       flex: 1;
       height: 100%;
       transition: background 0.02s ease;
     }
-    .mouse-btn.left {
-      border-right: 1px solid rgba(255, 255, 255, 0.22);
+    .m-click.left {
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
     }
-    .mouse-btn.active {
+    .m-click.active {
       background: #FFFFFF !important;
       box-shadow: 0 0 12px rgba(255, 255, 255, 1);
     }
 
-    .mouse-wheel-track {
+    .m-wheel-track {
       position: absolute;
-      top: 7px;
+      top: 15px;
       left: 50%;
       transform: translateX(-50%);
-      width: 3px;
-      height: 10px;
-      background: rgba(255, 255, 255, 0.35);
-      border-radius: 1.5px;
+      width: 4px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 2px;
       transition: all 0.03s ease;
     }
-    .mouse-wheel-track.up {
+    .m-wheel-track.up {
       background: #00F0FF !important;
       transform: translateX(-50%) translateY(-3px);
-      box-shadow: 0 0 10px #00F0FF;
+      box-shadow: 0 0 8px #00F0FF;
     }
-    .mouse-wheel-track.down {
+    .m-wheel-track.down {
       background: #FFFFFF !important;
       transform: translateX(-50%) translateY(3px);
-      box-shadow: 0 0 10px #FFFFFF;
+      box-shadow: 0 0 8px #FFFFFF;
     }
   </style>
 </head>
 <body>
-  <div class="telemetry-card" id="telemetryCard">
-    <!-- Header: Identity, Live Tech Combo Badge, and Dynamic Momentum Bar -->
-    <div class="telemetry-header">
-      <div class="telemetry-title">
-        <div class="status-dot"></div>
+  <div class="hud-console">
+    <!-- Top Micro Bar: Identity & Floating Combo Badge (Zero Bloat) -->
+    <div class="hud-header">
+      <div class="hud-tag">
+        <div class="hud-beacon"></div>
         <span>CAPTAIN SOLO</span>
-        <span id="comboBadge" class="combo-badge">GLIDE</span>
       </div>
-      <div class="momentum-meter">
-        <span class="meter-label">MOMENTUM</span>
-        <div class="meter-bars">
-          <div class="meter-seg" id="seg1"></div>
-          <div class="meter-seg" id="seg2"></div>
-          <div class="meter-seg" id="seg3"></div>
-          <div class="meter-seg" id="seg4"></div>
-        </div>
-      </div>
+      <div id="comboBadge" class="combo-badge">TAP-STRAFE</div>
     </div>
 
-    <!-- Main Telemetry Body -->
-    <div class="console-body">
-      <!-- LEFT POD: Perfectly Aligned Mechanical Keyboard Cluster -->
-      <div class="keyboard-cluster">
-        <!-- Row 1: Tactical [P / Alt], Forward [W centered], Interact [E] -->
-        <div class="cluster-row">
-          <div id="key-stim" class="key key-stim" title="Tactical Ability (P / Left Alt)">
+    <!-- Main HUD Cluster -->
+    <div class="hud-body">
+      <!-- LEFT POD: Keyboard Movement Cluster -->
+      <div class="keyboard-pod">
+        <!-- Row 1: Tactical [P / Alt], Forward [W], Interact [E] -->
+        <div class="key-row">
+          <div id="key-stim" class="k-cap k-stim" title="Tactical Ability (P / Left Alt)">
             <span>P</span>
-            <span class="sub-lbl">TAC</span>
+            <span class="k-sub">TAC</span>
           </div>
-          <div id="key-w" class="key key-wasd">W</div>
-          <div id="key-interact" class="key key-use">E</div>
+          <div id="key-w" class="k-cap k-wasd">W</div>
+          <div id="key-interact" class="k-cap k-interact">INTERACT</div>
         </div>
 
-        <!-- Row 2: Sprint [Shift], Strafe Left [A], Back [S], Strafe Right [D], Crouch [C / Ctrl] -->
-        <div class="cluster-row">
-          <div id="key-sprint" class="key key-sprint">SHIFT</div>
-          <div id="key-a" class="key key-wasd key-strafe-l">A</div>
-          <div id="key-s" class="key key-wasd">S</div>
-          <div id="key-d" class="key key-wasd key-strafe-r">D</div>
-          <div id="key-crouch" class="key key-crouch">CROUCH</div>
+        <!-- Row 2: Sprint [Shift], Strafe Left [A], Backward [S], Strafe Right [D], Crouch [C / Ctrl] -->
+        <div class="key-row">
+          <div id="key-sprint" class="k-cap k-sprint">SHIFT</div>
+          <div id="key-a" class="k-cap k-wasd cap-strafe-l">A</div>
+          <div id="key-s" class="k-cap k-wasd">S</div>
+          <div id="key-d" class="k-cap k-wasd cap-strafe-r">D</div>
+          <div id="key-crouch" class="k-cap k-crouch">CROUCH</div>
         </div>
 
         <!-- Row 3: Holster [3], Ground Jump [Space] -->
-        <div class="cluster-row">
-          <div id="btn-weapon" class="key key-holster" title="Holster / Cycle (3 / MB4)">HOLSTER</div>
-          <div id="key-jump" class="key key-space">SPACE</div>
+        <div class="key-row">
+          <div id="btn-weapon" class="k-cap k-holster" title="Holster / Cycle (3 / MB4)">3</div>
+          <div id="key-jump" class="k-cap k-jump">JUMP</div>
         </div>
       </div>
 
-      <!-- Frosted Pod Divider -->
-      <div class="pod-divider"></div>
+      <!-- Divider -->
+      <div class="hud-divider"></div>
 
-      <!-- RIGHT POD: Cohesive Scroll Wheel & Mouse Engine -->
-      <div class="mouse-wheel-cluster">
-        <!-- Cohesive Vertical Scroll Pillar: Down = Jump, Up = Tap-Strafe -->
-        <div class="wheel-column">
+      <!-- RIGHT POD: Vertical Wheel & Mouse Engine -->
+      <div class="mouse-pod">
+        <!-- Vertical Wheel Column: Down is Jump, Up is Tap-Strafe -->
+        <div class="wheel-pillar">
           <div id="wheel-up" class="wheel-btn up" title="Scroll Up: Tap-Strafe">
-            <span class="w-arrow">▲</span>
-            <span class="w-title">TAP</span>
+            <span class="w-glyph">▲</span>
+            <span class="w-lbl">TAP</span>
           </div>
           <div id="wheel-down" class="wheel-btn down" title="Scroll Down: Jump / Bhop">
-            <span class="w-arrow">▼</span>
-            <span class="w-title">JUMP</span>
+            <span class="w-glyph">▼</span>
+            <span class="w-lbl">JUMP</span>
           </div>
         </div>
 
-        <!-- Ergonomic Mouse Visualizer -->
-        <div class="mouse-shell" id="mouseShell">
-          <div class="mouse-split">
-            <div id="mouse-lmb" class="mouse-btn left"></div>
-            <div id="mouse-rmb" class="mouse-btn right"></div>
+        <!-- Sleek Wireframe Mouse Visualizer -->
+        <div class="mouse-frame" id="mouseShell">
+          <div class="mouse-keys">
+            <div id="mouse-lmb" class="m-click left"></div>
+            <div id="mouse-rmb" class="m-click right"></div>
           </div>
-          <div id="mouse-wheel" class="mouse-wheel-track"></div>
+          <div id="mouse-wheel" class="m-wheel-track"></div>
         </div>
       </div>
     </div>
@@ -563,77 +477,19 @@
       'MOUSE_WHEEL': document.getElementById('mouse-wheel')
     };
 
-    const telemetryCard = document.getElementById('telemetryCard');
     const comboBadge = document.getElementById('comboBadge');
     const mouseShell = document.getElementById('mouseShell');
-    const segs = [
-      document.getElementById('seg1'),
-      document.getElementById('seg2'),
-      document.getElementById('seg3'),
-      document.getElementById('seg4')
-    ];
 
     let wheelUpTimer = null;
     let wheelDownTimer = null;
-    let wheelUpTicks = 0;
-    let wheelTickResetTimer = null;
-
-    // Movement History & Kinetic Velocity Tracking
-    const inputHistory = [];
     let lastJumpTime = 0;
     let lastCrouchTime = 0;
     let lastATime = 0;
     let lastDTime = 0;
-    let wasdHistory = [];
     let comboTimer = null;
     const trailTimers = {};
 
-    function recordInputEvent() {
-      const now = performance.now();
-      inputHistory.push(now);
-
-      while (inputHistory.length > 0 && now - inputHistory[0] > 1200) {
-        inputHistory.shift();
-      }
-
-      // Update Kinetic Momentum Gauge Segments
-      const count = inputHistory.length;
-      segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
-      segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
-      segs[2].className = count >= 8 ? 'meter-seg lit-3' : 'meter-seg';
-      segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
-
-      if (count >= 10) {
-        telemetryCard.classList.add('momentum-max');
-        telemetryCard.classList.remove('momentum-boost');
-      } else if (count >= 5) {
-        telemetryCard.classList.add('momentum-boost');
-        telemetryCard.classList.remove('momentum-max');
-      } else {
-        telemetryCard.classList.remove('momentum-boost', 'momentum-max');
-      }
-    }
-
-    // Decay Momentum smoothly when idle
-    setInterval(() => {
-      const now = performance.now();
-      while (inputHistory.length > 0 && now - inputHistory[0] > 1200) {
-        inputHistory.shift();
-      }
-      const count = inputHistory.length;
-      segs[0].className = count >= 2 ? 'meter-seg lit-1' : 'meter-seg';
-      segs[1].className = count >= 5 ? 'meter-seg lit-2' : 'meter-seg';
-      segs[2].className = count >= 8 ? 'meter-seg lit-3' : 'meter-seg';
-      segs[3].className = count >= 12 ? 'meter-seg lit-4' : 'meter-seg';
-
-      if (count < 5) {
-        telemetryCard.classList.remove('momentum-boost', 'momentum-max');
-      } else if (count < 10) {
-        telemetryCard.classList.remove('momentum-max');
-      }
-    }, 200);
-
-    function triggerComboBadge(text, cyan = false, duration = 480) {
+    function triggerComboBadge(text, cyan = false, duration = 400) {
       comboBadge.textContent = text;
       if (cyan) {
         comboBadge.classList.add('cyan');
@@ -652,57 +508,43 @@
       if (!el) return;
 
       if (active) {
-        recordInputEvent();
         clearTimeout(trailTimers[name]);
         el.classList.remove('trail', 'superglide');
         el.classList.add('active');
 
         const now = performance.now();
 
-        // Flashy Counter-Strafe / Strafe-Dance Detection (A <-> D alternation)
+        // Flashy Counter-Strafe Dance Detection (A <-> D alternation)
         if (name === 'A') {
           lastATime = now;
           if (now - lastDTime < 240) {
             elements['A'].classList.add('strafe-chain');
             elements['D'].classList.add('strafe-chain');
-            triggerComboBadge('⚡ STRAFE MOMENTUM', true, 360);
+            triggerComboBadge('⚡ STRAFE', true, 300);
           }
         } else if (name === 'D') {
           lastDTime = now;
           if (now - lastATime < 240) {
             elements['A'].classList.add('strafe-chain');
             elements['D'].classList.add('strafe-chain');
-            triggerComboBadge('⚡ STRAFE MOMENTUM', true, 360);
+            triggerComboBadge('⚡ STRAFE', true, 300);
           }
         }
 
-        // Circular Strafe Detection (Neo-Strafe A -> S -> D -> W)
-        if (['W', 'A', 'S', 'D'].includes(name)) {
-          wasdHistory.push({ key: name, time: now });
-          while (wasdHistory.length > 0 && now - wasdHistory[0].time > 500) {
-            wasdHistory.shift();
-          }
-          const recentKeys = wasdHistory.map(h => h.key);
-          const uniqueKeys = new Set(recentKeys);
-          if (uniqueKeys.size === 4) {
-            triggerComboBadge('↺ NEO-STRAFE', true, 420);
-          }
-        }
-
-        // Superglide Combo: Jump and Crouch struck within 45ms!
+        // Superglide Combo: Jump and Crouch struck within 45ms
         if (name === 'JUMP') {
           lastJumpTime = now;
           if (Math.abs(lastJumpTime - lastCrouchTime) < 45) {
             el.classList.add('superglide');
             if (elements['CROUCH']) elements['CROUCH'].classList.add('superglide');
-            triggerComboBadge('✦ SUPERGLIDE', true, 550);
+            triggerComboBadge('✦ SUPERGLIDE', true, 500);
           }
         } else if (name === 'CROUCH') {
           lastCrouchTime = now;
           if (Math.abs(lastJumpTime - lastCrouchTime) < 45) {
             el.classList.add('superglide');
             if (elements['JUMP']) elements['JUMP'].classList.add('superglide');
-            triggerComboBadge('✦ SUPERGLIDE', true, 550);
+            triggerComboBadge('✦ SUPERGLIDE', true, 500);
           }
         }
 
@@ -716,7 +558,7 @@
 
         trailTimers[name] = setTimeout(() => {
           el.classList.remove('trail', 'superglide');
-        }, 220);
+        }, 200);
 
         if (name === 'LMB' || name === 'RMB') {
           if (!elements['LMB'].classList.contains('active') && !elements['RMB'].classList.contains('active')) {
@@ -727,46 +569,32 @@
     }
 
     function triggerWheel(direction) {
-      recordInputEvent();
       const wheel = elements['MOUSE_WHEEL'];
 
       if (direction === 'up') {
         // UP = TAP-STRAFE
         const ind = elements['WHEEL_UP'];
-        wheelUpTicks++;
+        ind.classList.add('active');
+        triggerComboBadge('▲ TAP-STRAFE', true, 320);
 
-        clearTimeout(wheelTickResetTimer);
-        wheelTickResetTimer = setTimeout(() => {
-          wheelUpTicks = 0;
-          ind.classList.remove('surging');
-        }, 150);
-
-        if (wheelUpTicks >= 3) {
-          ind.classList.add('surging');
-          triggerComboBadge('▲ TAP-STRAFE', true, 380);
-        } else {
-          ind.classList.add('active');
-          triggerComboBadge('▲ TAP-STRAFE', false, 280);
-        }
-
-        wheel.className = 'mouse-wheel-track up';
+        wheel.className = 'm-wheel-track up';
         clearTimeout(wheelUpTimer);
         wheelUpTimer = setTimeout(() => {
           ind.classList.remove('active');
-          wheel.className = 'mouse-wheel-track';
+          wheel.className = 'm-wheel-track';
         }, 90);
 
       } else if (direction === 'down') {
         // DOWN = JUMP / BHOP
         const ind = elements['WHEEL_DOWN'];
         ind.classList.add('active');
-        triggerComboBadge('▼ BHOP / JUMP', false, 280);
+        triggerComboBadge('▼ JUMP', false, 320);
 
-        wheel.className = 'mouse-wheel-track down';
+        wheel.className = 'm-wheel-track down';
         clearTimeout(wheelDownTimer);
         wheelDownTimer = setTimeout(() => {
           ind.classList.remove('active');
-          wheel.className = 'mouse-wheel-track';
+          wheel.className = 'm-wheel-track';
         }, 90);
       }
     }
