@@ -264,6 +264,63 @@ def run_http_server():
     event_loop.run_until_complete(site.start())
     event_loop.run_forever()
 
+TH32CS_SNAPPROCESS = 0x00000002
+
+class PROCESSENTRY32W(ctypes.Structure):
+    _fields_ = [
+        ('dwSize', wintypes.DWORD),
+        ('cntUsage', wintypes.DWORD),
+        ('th32ProcessID', wintypes.DWORD),
+        ('th32DefaultHeapID', ctypes.c_size_t),
+        ('th32ModuleID', wintypes.DWORD),
+        ('cntThreads', wintypes.DWORD),
+        ('th32ParentProcessID', wintypes.DWORD),
+        ('pcPriClassBase', wintypes.LONG),
+        ('dwFlags', wintypes.DWORD),
+        ('szExeFile', wintypes.WCHAR * 260)
+    ]
+
+def is_obs_running():
+    hSnap = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    if hSnap == -1:
+        return False
+    pe = PROCESSENTRY32W()
+    pe.dwSize = ctypes.sizeof(PROCESSENTRY32W)
+    found = False
+    if kernel32.Process32FirstW(hSnap, ctypes.byref(pe)):
+        while True:
+            if pe.szExeFile.lower() == "obs64.exe":
+                found = True
+                break
+            if not kernel32.Process32NextW(hSnap, ctypes.byref(pe)):
+                break
+    kernel32.CloseHandle(hSnap)
+    return found
+
+def obs_watchdog(main_tid):
+    start_time = time.time()
+    obs_seen = False
+    consecutive_absent = 0
+    while True:
+        time.sleep(1.5)
+        running = is_obs_running()
+        if running:
+            obs_seen = True
+            consecutive_absent = 0
+        else:
+            if obs_seen:
+                consecutive_absent += 1
+                if consecutive_absent >= 3:
+                    # OBS was closed -> terminate daemon to free port 8998 cleanly
+                    user32.PostThreadMessageW(main_tid, 0x0012, 0, 0)  # WM_QUIT
+                    time.sleep(0.5)
+                    os._exit(0)
+            else:
+                if time.time() - start_time > 60:
+                    user32.PostThreadMessageW(main_tid, 0x0012, 0, 0)
+                    time.sleep(0.5)
+                    os._exit(0)
+
 def main():
     # Single-Instance Mutex Guard
     mutex_name = "Global\\OBS_Input_Overlay_Daemon_Mutex"
@@ -284,12 +341,18 @@ def main():
     media_thread = threading.Thread(target=poll_media_and_game_thread, daemon=True)
     media_thread.start()
 
-    # 3. Install Mouse Hook for Scroll Wheel
+    # 4. Optional OBS Auto-Exit Watchdog
+    main_tid = kernel32.GetCurrentThreadId()
+    if "--auto-exit-with-obs" in sys.argv:
+        watchdog_thread = threading.Thread(target=obs_watchdog, args=(main_tid,), daemon=True)
+        watchdog_thread.start()
+
+    # 5. Install Mouse Hook for Scroll Wheel
     mouse_callback = HOOKPROC(low_level_mouse_proc)
     mouse_hook = user32.SetWindowsHookExW(WH_MOUSE_LL, mouse_callback, 0, 0)
     print(f"[InputOverlay] Mouse wheel hook installed: {bool(mouse_hook)}", flush=True)
 
-    # 4. Message Pump for Mouse Hook
+    # 6. Message Pump for Mouse Hook
     msg = wintypes.MSG()
     try:
         while user32.GetMessageW(ctypes.byref(msg), 0, 0, 0) != 0:
@@ -300,6 +363,7 @@ def main():
     finally:
         if mouse_hook:
             user32.UnhookWindowsHookEx(mouse_hook)
+        os._exit(0)
 
 if __name__ == "__main__":
     main()

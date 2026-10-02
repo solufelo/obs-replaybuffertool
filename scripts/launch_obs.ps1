@@ -20,7 +20,7 @@ if ($runningObs) {
 # 2. Clear stale crash / shutdown sentinels
 $sentinelDir = "$env:APPDATA\obs-studio\.sentinel"
 if (Test-Path $sentinelDir) {
-    Remove-Item "$sentinelDir\*" -Force -Recurse -ErrorAction SilentlyContinue
+    Get-ChildItem -Path $sentinelDir -Force -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 }
 
 # 3. Ensure global.ini has OBSWebSocket enabled
@@ -47,7 +47,7 @@ if (Test-Path $sceneJsonPath) {
 }
 
 # 5. Launch OBS with exact arguments
-$obsArgs = "--disable-shutdown-check --startreplaybuffer --minimize-to-tray --scene `"$sceneName`""
+$obsArgs = "--startreplaybuffer --minimize-to-tray --scene `"$sceneName`""
 Write-Host ">>> Starting OBS Studio (Single-Instance Mode) -> Scene: $sceneName" -ForegroundColor Cyan
 Start-Process -FilePath $obsPath -ArgumentList $obsArgs -WorkingDirectory $obsDir
 
